@@ -52,8 +52,10 @@ En esta sección se documenta la solución a problemas comunes durante la config
 **Solución**: Descripción de la solución o referencia al script que lo resuelve
 
 ### Problemas con WSL 
-**Problema**: Olvidaste la contraseña del usuario en WSL (Ubuntu).
-**Solución**: Sigue los pasos detallados en la guía: [Restablecer contraseña en WSL](docs/problemas-comunes/reset-wsl-password.md).
+
+**Problema**: Olvidaste la contraseña del usuario en WSL (Ubuntu)  
+**Solución**: Sigue los pasos detallados en la guía: [Restablecer contraseña en WSL](docs/problemas-comunes/reset-wsl-password.md)
+
 
 ### Problemas con otras herramientas
 
