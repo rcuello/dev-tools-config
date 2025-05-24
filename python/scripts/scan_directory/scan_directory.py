@@ -344,6 +344,7 @@ if __name__ == "__main__":
 # python scan_directory.py C:\DevOps\MarketPlace\mpt-public-catalog\worker -o worker.txt --ignore-file C:\DevOps\MarketPlace\py-utils\scan_ignore.yaml
 # python scan_directory.py C:\DevOps\MyGitHub\Udemy\amazonashop\Backend -o ecommerce.txt --ignore-file scan_ignore_dotnet.yaml
 # python scan_directory.py --batch-config scan_batch.config.yaml
+# python scan_directory.py --batch-config scan-config/batches/scan_batch2.config.yaml
 
 # Uso básico (busca ignore.yml en el directorio actual)
 # python scan_directory.py /ruta/del/proyecto

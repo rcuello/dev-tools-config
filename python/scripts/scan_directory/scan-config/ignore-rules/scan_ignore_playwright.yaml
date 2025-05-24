@@ -1,0 +1,16 @@
+ignore:
+  - node_modules/
+  - tests/artifacts/
+  - tests/output/
+  - .git/
+  - .vscode/
+  - screenshots/
+  - videos/
+  - traces/
+  - "*.log"
+  - "*.tmp"
+  - "*.bak"
+  - "*.env"
+  - "*.json"
+  - "*.yaml"
+  - "*.md"

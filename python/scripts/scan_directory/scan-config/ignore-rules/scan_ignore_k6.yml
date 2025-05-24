@@ -1,0 +1,15 @@
+ignore:
+  - node_modules/
+  - results/
+  - logs/
+  - .git/
+  - .vscode/
+  - __tests__/
+  - "*.log"
+  - "*.tmp"
+  - "*.bak"
+  - "*.json"
+  - "*.yaml"
+  - "*.yml"
+  - "*.env"
+  - "*.md"
