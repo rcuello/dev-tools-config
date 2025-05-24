@@ -1,0 +1,29 @@
+ignore_directories:
+  - __pycache__
+  - .venv
+  - env
+  - .pytest_cache
+  - .vscode
+  - .idea
+  - .git
+  - logs
+  - build
+  - dist
+  - node_modules   
+  - coverage
+
+ignore_files:
+  - "*.pyc"
+  - "*.pyo"
+  - "*.pyd"
+  - "*.log"
+  - "*.tmp"
+  - "*.cache"
+  - ".DS_Store"
+  - "*.egg-info"
+  - "*.egg"
+  - "*.sqlite"
+  - "*.swp"
+  - "*.bak"
+  - "*.orig"
+  - "Thumbs.db"

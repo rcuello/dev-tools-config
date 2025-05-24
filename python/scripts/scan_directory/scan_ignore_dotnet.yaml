@@ -1,0 +1,33 @@
+ignore_directories:
+  - bin
+  - obj
+  - packages
+  - .vs
+  - .vscode
+  - dist
+  - build
+  - node_modules     
+  - .git
+
+ignore_files:
+  - "*.log"
+  - "*.tmp"
+  - "*.cache"
+  - ".DS_Store"
+  - "*.user"         # Archivos de configuración específicos de usuario
+  - "*.suo"          # Archivos temporales de Visual Studio
+  - "*.ncb"
+  - "*.sdf"
+  - "*.opensdf"
+  - "*.tlog"
+  - "*.lastbuildstate"
+  - "*.idb"
+  - "*.pdb"
+  - "*.ipch"
+  - "*.aps"
+  - "*.pch"
+  - "*.vspscc"
+  - "*.vssscc"
+  - "*.dbmdl"
+  - "*.bak"
+  - "Thumbs.db"

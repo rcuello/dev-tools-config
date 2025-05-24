@@ -16,24 +16,43 @@ Genera un árbol de directorios en formato visual, con soporte para exclusiones 
 ## 🧑‍💻 Requisitos
 
 - Python 3.9 o superior
-- [Poetry](https://python-poetry.org/) (para gestión de dependencias)
 
 ---
 
 ## ⚙️ Instalación
 
-Clona el repositorio y configura el entorno:
+Clona el repositorio y configura el entorno virtual:
 
 ```bash
 git clone https://github.com/tu_usuario/scan-directory.git
 cd scan-directory
-poetry install
+python -m venv .venv
 ````
 
 Activa el entorno virtual:
 
+* En Linux/macOS:
+
 ```bash
-poetry shell
+source .venv/bin/activate
+```
+
+* En Windows (PowerShell):
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+* En Windows (cmd.exe):
+
+```cmd
+.\.venv\Scripts\activate.bat
+```
+
+Luego instala las dependencias con pip:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
