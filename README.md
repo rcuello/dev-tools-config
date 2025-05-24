@@ -44,9 +44,27 @@ En esta sección se documenta la solución a problemas comunes durante la config
 **Problema**: jar.exe no se encuentra en el PATH  
 **Solución**: Ejecuta [configurar-jar-en-path.ps1](powershell/configurar-jar-en-path.ps1)
 
+Ejecuta lo siguiente en PowerShell antes de ejecutar tu script:
+
 ```powershell
-.\powershell\configurar-jar-en-path.ps1
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 ```
+Esto permitirá ejecutar scripts **solo en esta sesión de PowerShell**.
+
+🔹 Luego intenta ejecutar tu script :
+
+```powershell
+.\powershell\java\configurar-jar-en-path.ps1
+```
+### **📌 Verificar la configuración actual**
+Para comprobar qué política de ejecución tienes activa, ejecuta:
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+🔹 **Si aparece `Restricted`**, significa que los scripts están bloqueados.  
+🔹 **Si aparece `RemoteSigned` o `Bypass` en el ámbito correcto, ya puedes ejecutar tu script.**
 
 **Problema**: Otro problema relacionado con Java  
 **Solución**: Descripción de la solución o referencia al script que lo resuelve
