@@ -1,0 +1,31 @@
+# scan_batch_config.yaml
+# Archivo de configuración para escaneo masivo de directorios
+
+projects:
+  # Proyecto 1: Tests de performance con K6
+  - path: C:\DevOps\MyGitHub\Udemy\amazonashop\QA\tests\performance
+    ignore_file: scan_ignore_python.yaml
+    output: salida_performance_k6.txt
+    no_files: false
+    max_depth: 3
+
+  # Proyecto 2: Backend .NET (solo directorios)
+  - path: C:\DevOps\MyGitHub\Udemy\amazonashop\Backend
+    ignore_file: scan_ignore_dotnet.yaml
+    output: salida_backend.txt
+    no_files: true
+    # max_depth no especificado = sin límite
+
+  # Proyecto 3: Ejemplo adicional con configuración mínima
+  - path: C:\DevOps\MyProject\Frontend
+    output: frontend_structure.txt
+    # ignore_file no especificado = usará ignore.yml por defecto
+    # no_files no especificado = false por defecto
+    # max_depth no especificado = sin límite
+
+# Notas:
+# - path: es el único campo obligatorio
+# - ignore_file: si no se especifica, usará 'ignore.yml' por defecto
+# - output: si no se especifica, usará 'estructura_proyecto_N.txt' donde N es el número de proyecto
+# - no_files: si no se especifica, será false (incluye archivos)
+# - max_depth: si no se especifica, no habrá límite de profundidad
