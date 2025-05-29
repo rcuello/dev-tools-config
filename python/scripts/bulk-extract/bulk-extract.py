@@ -653,7 +653,7 @@ if __name__ == "__main__":
 
 # Uso básico
 # python bulk-extract.py /ruta/de/archivos
-# python bulk-extract.py "C:\Users\ronald.cuello\Downloads\parcial\PROGRAMACIÓN I (CLASE 2557) TDSOF-2561-Parcial II Programacion orientada a objetos-1717365" --7zip-path "C:\Program Files\7-Zip\7z.exe"
+# python bulk-extract.py "C:\Ruta\de\archivos" --7zip-path "C:\Program Files\7-Zip\7z.exe"
 
 # Con opciones avanzadas
 # python bulk-extract.py /ruta/de/archivos --log-file operations.log --remove-archives --max-depth 3
