@@ -1,9 +1,14 @@
 # scan_batch_config.yaml
 # Archivo de configuración para escaneo masivo de directorios
 projects:
-  - path: C:\DevOps\MyGitHub\Udemy\amazonashop\QA\tests\performance
-    ignore_file: scan-config/ignore-rules/scan_ignore_k6.yml
-    output: salida_performance_k6.txt
+  #- path: C:\DevOps\MyGitHub\Udemy\amazonashop\QA\tests\performance
+  #  ignore_file: scan-config/ignore-rules/scan_ignore_k6.yml
+  #  output: salida_performance_k6.txt
+  - path: C:\DevOps\MyGitHub\Udemy\amazonashop
+    ignore_file: scan-config/ignore-rules/scan_ignore_general.yml
+    output: salida_ecommerce.txt
+    no_files: true
+    max_depth: 2
 
   - path: C:\DevOps\MyGitHub\Udemy\amazonashop\Backend
     ignore_file: scan-config/ignore-rules/scan_ignore_dotnet.yaml

@@ -1,0 +1,43 @@
+# Configuración para procesamiento masivo de archivos comprimidos
+# Bulk Archive Extractor - Batch Configuration
+
+extractions:
+  # Configuración para archivos diarios
+  - path: "/var/backups/daily"
+    output_dir: "/var/extracted/daily"
+    remove_archives: false
+    max_depth: 3
+    log_file: "daily_extraction.log"
+    7zip_path: "C:\\Program Files\\7-Zip\\7z.exe"  # Ruta personalizada para Windows
+    include_extensions: ".rar,.tar.gz"
+    dry_run: false
+
+  # Configuración para archivos semanales
+  - path: "/var/backups/weekly"
+    output_dir: "/var/extracted/weekly"
+    remove_archives: true
+    max_depth: 1
+    log_file: "weekly_extraction.log"
+    dry_run: false
+
+  # Configuración para testing (modo dry-run)
+  - path: "/tmp/test_archives"
+    output_dir: "/tmp/test_extracted"
+    remove_archives: false
+    max_depth: 2
+    log_file: "test_extraction.log"
+    dry_run: true  # Solo simulación
+
+  # Configuración para archivos de desarrollo (Windows)
+  - path: "C:\\Dev\\compressed_files"
+    output_dir: "C:\\Dev\\extracted"
+    remove_archives: false
+    max_depth: 5
+    log_file: "dev_extraction.log"
+    7zip_path: "C:\\Program Files (x86)\\7-Zip\\7z.exe"  # Ruta alternativa
+    include_extensions: ".rar,.tar,.gz,.bz2"
+    dry_run: false
+
+  # Configuración mínima (solo campos obligatorios)
+  - path: "/home/user/downloads"
+    # Todos los demás campos son opcionales y usarán valores por defecto

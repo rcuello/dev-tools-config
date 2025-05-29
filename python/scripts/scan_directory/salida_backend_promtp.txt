@@ -1,0 +1,19 @@
+Actúa como un desarrollador senior experto en C# y .NET 9 con experiencia en observabilidad. Necesito tu ayuda para configurar OpenTelemetry paso a paso en un proyecto API de eCommerce académico desarrollado en .NET 9.
+
+El objetivo es tener trazabilidad completa de las operaciones HTTP, consultas a la base de datos, excepciones y métricas personalizadas.
+
+A continuación, te proporciono la estructura del proyecto (Ecommerce.Api) para que puedas indicarme dónde agregar la configuración, qué paquetes instalar, y cómo aplicar buenas prácticas. El proyecto está organizado bajo la carpeta src/Api/Ecommerce.Api y ya contiene middlewares personalizados, servicios, controladores y configuraciones modulares en Extensions/ServiceCollection/.
+
+📁 Estructura relevante del proyecto
+
+```
+
+```
+
+Quiero que me indiques:
+
+* ¿Qué paquetes NuGet necesito instalar para habilitar OpenTelemetry?
+* ¿Cómo estructuro la configuración para trazar HTTP requests, Entity Framework, y logs?
+* ¿Cómo puedo exportar los datos a un backend como Jaeger, Zipkin o Azure Monitor?
+* ¿Cómo puedo crear métricas personalizadas y agregar trazas a operaciones específicas del dominio (por ejemplo, creación de órdenes)?
+* ¿Cuál es la mejor forma de integrar esta configuración con mi ExceptionMiddleware y LoggingBehavior.cs?
