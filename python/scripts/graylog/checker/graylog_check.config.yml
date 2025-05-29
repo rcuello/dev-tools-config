@@ -1,0 +1,16 @@
+host: "graylog.miempresa.com"
+timeout: 10
+ports:
+  web: 9001
+  syslog_udp: 1514
+  gelf_udp: 12201
+  opensearch: 9200
+
+test_messages:
+  syslog:
+    facility: "mi-servidor"
+    message: "Prueba de conectividad personalizada"
+  gelf:
+    host: "mi-aplicacion"
+    short_message: "Test message"
+    full_message: "Mensaje de prueba detallado"
