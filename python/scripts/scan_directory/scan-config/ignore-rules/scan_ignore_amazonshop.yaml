@@ -1,0 +1,20 @@
+# Carpetas a ignorar en el escaneo
+ignore_directories:
+  - node_modules
+  - .git
+  - .github
+  - bin
+  - obj
+  - packages
+  - .vs
+  - .vscode
+  - dist
+  - build
+
+# Archivos a ignorar
+ignore_files:
+  - "*.log"
+  - "*.tmp"
+  - "*.cache"
+  - ".DS_Store"
+  - "*.pyc"

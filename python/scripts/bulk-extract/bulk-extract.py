@@ -83,143 +83,17 @@ Fecha: 2025-05-29
 """
 
 import os
-import sys
-import zipfile
 import argparse
 import yaml
+import fnmatch
 import logging
-import subprocess
-import shutil
 from pathlib import Path
 from datetime import datetime
 
-try:
-    import py7zr
-    HAS_PY7ZR = True
-except ImportError:
-    py7zr = None
-    HAS_PY7ZR = False
-
-class SevenZipHandler:
-    """Maneja la detección y uso de 7-Zip (py7zr o aplicación instalada)."""
-    
-    def __init__(self, custom_path=None, logger=None):
-        self.logger = logger
-        self.custom_path = custom_path
-        self.zip_executable = None
-        self.method = None
-        
-        self._detect_7zip()
-    
-    def _detect_7zip(self):
-        """Detecta qué método de 7-Zip usar."""
-        # 1. Si py7zr está disponible, usarlo primero
-        if HAS_PY7ZR:
-            self.method = "py7zr"
-            if self.logger:
-                self.logger.debug("Usando py7zr para archivos 7z")
-            return
-        
-        # 2. Buscar ejecutable 7z
-        paths_to_check = []
-        
-        # Agregar ruta personalizada si se proporciona
-        if self.custom_path:
-            paths_to_check.append(self.custom_path)
-        
-        # Rutas comunes en Windows
-        if os.name == 'nt':
-            common_paths = [
-                r"C:\Program Files\7-Zip\7z.exe",
-                r"C:\Program Files (x86)\7-Zip\7z.exe",
-                r"C:\Tools\7-Zip\7z.exe"
-            ]
-            paths_to_check.extend(common_paths)
-        
-        # Rutas comunes en Linux/Mac
-        else:
-            common_paths = [
-                "/usr/bin/7z",
-                "/usr/local/bin/7z",
-                "/opt/local/bin/7z"
-            ]
-            paths_to_check.extend(common_paths)
-        
-        # Buscar en PATH del sistema
-        path_executable = shutil.which("7z")
-        if path_executable:
-            paths_to_check.append(path_executable)
-        
-        # Probar cada ruta
-        for path in paths_to_check:
-            if self._test_7zip_executable(path):
-                self.zip_executable = path
-                self.method = "executable"
-                if self.logger:
-                    self.logger.info(f"Usando 7-Zip instalado: {path}")
-                return
-        
-        # No se encontró ningún método
-        self.method = None
-        if self.logger:
-            self.logger.warning("No se encontró py7zr ni 7-Zip instalado. Los archivos .7z no se procesarán.")
-    
-    def _test_7zip_executable(self, path):
-        """Prueba si el ejecutable 7z funciona."""
-        if not os.path.exists(path):
-            return False
-        
-        try:
-            result = subprocess.run(
-                [path],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            return True
-        except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
-            return False
-    
-    def can_extract_7z(self):
-        """Retorna True si se puede extraer archivos 7z."""
-        return self.method is not None
-    
-    def extract_7z_with_py7zr(self, file_path, output_dir):
-        """Extrae usando py7zr."""
-        with py7zr.SevenZipFile(file_path, mode='r') as z:
-            z.extractall(output_dir)
-    
-    def extract_7z_with_executable(self, file_path, output_dir):
-        """Extrae usando el ejecutable 7z."""
-        cmd = [
-            self.zip_executable,
-            "x",  # extract with full paths
-            str(file_path),
-            f"-o{output_dir}",  # output directory
-            "-y"  # assume Yes on all queries
-        ]
-        
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False
-        )
-        
-        if result.returncode != 0:
-            raise Exception(f"7z failed with code {result.returncode}: {result.stderr}")
-    
-    def extract_7z(self, file_path, output_dir):
-        """Extrae un archivo 7z usando el método disponible."""
-        if self.method == "py7zr":
-            self.extract_7z_with_py7zr(file_path, output_dir)
-        elif self.method == "executable":
-            self.extract_7z_with_executable(file_path, output_dir)
-        else:
-            raise Exception("No hay método disponible para extraer archivos 7z")
-
-def setup_logging(log_file=None, verbose=False, quiet=False):
-    """Configura el sistema de logging según los parámetros especificados."""
+def setup_logging(verbose=False, quiet=False):
+    """
+    Configura el sistema de logging basado en las opciones del usuario.
+    """
     if quiet:
         level = logging.ERROR
     elif verbose:
@@ -227,287 +101,201 @@ def setup_logging(log_file=None, verbose=False, quiet=False):
     else:
         level = logging.INFO
     
-    formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    # Formato simple y claro
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
     
-    logger = logging.getLogger('bulk_extract')
-    logger.setLevel(level)
-    
-    # Limpiar handlers existentes
-    logger.handlers.clear()
-    
+    # Handler para consola
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
     
-    if log_file:
-        file_handler = logging.FileHandler(log_file, encoding='utf-8')
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-        logger.info(f"Log guardándose en: {log_file}")
+    # Configurar logger principal
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    logger.addHandler(console_handler)
     
     return logger
 
 def parse_arguments():
-    """Configura y parsea los argumentos de línea de comandos."""
+    """
+    Configura y parsea los argumentos de línea de comandos.
+    """
     parser = argparse.ArgumentParser(
-        description='Descomprime masivamente archivos .zip y .7z de forma recursiva',
+        description='Genera un árbol de directorios en formato texto',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     
+    # Hacer path opcional cuando se usa batch-config
     parser.add_argument(
         'path',
-        nargs='?',
-        help='Ruta del directorio donde buscar archivos comprimidos'
+        nargs='?',  # Hacer opcional
+        help='Ruta del directorio a escanear'
     )
     
     parser.add_argument(
-        '-o', '--output-dir',
-        help='Directorio base para las extracciones (default: misma ubicación del archivo)'
+        '-o', '--output',
+        default='estructura_directorios.txt',
+        help='Archivo de salida donde se guardará la estructura'
     )
     
     parser.add_argument(
-        '--log-file',
-        help='Archivo donde guardar el log de operaciones'
+        '--ignore-file',
+        default='ignore.yml',
+        help='Archivo YAML con patrones para ignorar'
     )
     
     parser.add_argument(
-        '--dry-run',
+        '--no-files',
         action='store_true',
-        help='Simula la extracción sin ejecutarla realmente'
-    )
-    
-    parser.add_argument(
-        '--remove-archives',
-        action='store_true',
-        help='Elimina los archivos originales después de extraer exitosamente'
+        help='Excluye los archivos, mostrando solo directorios'
     )
     
     parser.add_argument(
         '--max-depth',
         type=int,
-        help='Profundidad máxima de búsqueda recursiva (0 = sin límite)'
+        help='Profundidad máxima del árbol (0 = sin límite)'
     )
-    
-    parser.add_argument(
-        '--include-extensions',
-        help='Extensiones adicionales a procesar, separadas por comas (ej: .rar,.tar.gz)'
-    )
-    
+
     parser.add_argument(
         '--batch-config',
-        help='Archivo YAML con configuraciones para procesamiento masivo'
-    )
-    
-    parser.add_argument(
-        '--7zip-path',
-        help='Ruta personalizada al ejecutable 7z (ej: C:\\Program Files\\7-Zip\\7z.exe)'
-    )
-    
-    parser.add_argument(
-        '--quiet',
-        action='store_true',
-        help='Modo silencioso, solo muestra errores críticos'
+        help='Archivo YAML con configuraciones para escaneo masivo'
     )
     
     parser.add_argument(
         '-v', '--verbose',
         action='store_true',
-        help='Modo detallado con información adicional de debug'
+        help='Habilita logging detallado (DEBUG)'
+    )
+    
+    parser.add_argument(
+        '-q', '--quiet',
+        action='store_true',
+        help='Silencia la salida (solo errores)'
     )
     
     return parser.parse_args()
 
-def get_supported_extensions(include_extensions=None):
-    """Retorna las extensiones de archivo soportadas."""
-    base_extensions = ['.zip', '.ZIP', '.7z', '.7Z']
+def load_ignore_patterns(ignore_file):
+    """
+    Carga los patrones de ignore desde el archivo YAML.
+    """
+    logger = logging.getLogger(__name__)
     
-    if include_extensions:
-        additional = [ext.strip() for ext in include_extensions.split(',')]
-        base_extensions.extend(additional)
+    try:
+        if os.path.exists(ignore_file):
+            logger.info(f"Cargando archivo ignore: {ignore_file}")
+            with open(ignore_file, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+                ignore_dirs = set(config.get('ignore_directories', []))
+                ignore_files = set(config.get('ignore_files', []))
+                logger.debug(f"Directorios a ignorar: {ignore_dirs}")
+                logger.debug(f"Archivos a ignorar: {ignore_files}")
+                return ignore_dirs, ignore_files
+        else:
+            logger.warning(f"Archivo ignore no encontrado: {ignore_file}")
+    except Exception as e:
+        logger.error(f"Error al cargar {ignore_file}: {str(e)}")
     
-    return base_extensions
+    return set(), set()
 
-def find_archives(directory_path, extensions, max_depth=None, logger=None):
-    """Busca archivos comprimidos en el directorio especificado."""
-    path = Path(directory_path)
-    found_files = []
+def should_ignore(entry, ignore_dirs, ignore_files):
+    """
+    Determina si una entrada debe ser ignorada según los patrones.
+    """
+    logger = logging.getLogger(__name__)
+    name = entry.name
     
-    def search_recursive(current_path, current_depth=0):
+    if entry.is_dir():
+        should_ignore_dir = any(fnmatch.fnmatch(name, pattern) for pattern in ignore_dirs)
+        if should_ignore_dir:
+            logger.debug(f"Ignorando directorio: {name}")
+        return should_ignore_dir
+    else:
+        should_ignore_file = any(fnmatch.fnmatch(name, pattern) for pattern in ignore_files)
+        if should_ignore_file:
+            logger.debug(f"Ignorando archivo: {name}")
+        return should_ignore_file
+
+def get_tree_chars(is_last):
+    """
+    Retorna los caracteres correctos para el árbol según si es el último elemento.
+    """
+    if is_last:
+        return "└── ", "    "
+    return "├── ", "│   "
+
+def scan_directory(root_path, output_file, ignore_file='ignore.yml', no_files=False, max_depth=None):
+    """
+    Escanea la estructura de directorios y genera un árbol en formato texto.
+    """
+    logger = logging.getLogger(__name__)
+    
+    # Cargar patrones de ignore
+    ignore_dirs, ignore_files = load_ignore_patterns(ignore_file)
+    
+    def write_tree(file, path, prefix="", current_depth=0):
         if max_depth is not None and current_depth > max_depth:
             return
-        
-        try:
-            for item in current_path.iterdir():
-                if item.is_file():
-                    if any(item.name.endswith(ext) for ext in extensions):
-                        found_files.append(item)
-                        if logger:
-                            logger.debug(f"Encontrado: {item}")
-                elif item.is_dir():
-                    search_recursive(item, current_depth + 1)
-        except PermissionError:
-            if logger:
-                logger.warning(f"Sin permisos para acceder a: {current_path}")
-        except Exception as e:
-            if logger:
-                logger.error(f"Error al buscar en {current_path}: {e}")
-    
-    search_recursive(path)
-    return sorted(found_files)
-
-def extract_zip(file_path, output_dir, dry_run=False, logger=None):
-    """Extrae un archivo ZIP."""
-    try:
-        if dry_run:
-            if logger:
-                logger.info(f"[DRY RUN] Extraería: {file_path} → {output_dir}")
-            return True
-        
-        with zipfile.ZipFile(file_path, 'r') as zip_ref:
-            zip_ref.extractall(output_dir)
-        
-        if logger:
-            logger.info(f"✓ Extraído: {file_path.name} → {output_dir.name}/")
-        return True
-        
-    except zipfile.BadZipFile:
-        if logger:
-            logger.error(f"✗ Archivo ZIP corrupto: {file_path}")
-        return False
-    except Exception as e:
-        if logger:
-            logger.error(f"✗ Error al extraer {file_path}: {e}")
-        return False
-
-def extract_7z(file_path, output_dir, seven_zip_handler, dry_run=False, logger=None):
-    """Extrae un archivo 7z usando SevenZipHandler."""
-    if not seven_zip_handler.can_extract_7z():
-        if logger:
-            logger.error(f"✗ No se puede extraer {file_path}: No hay método 7z disponible")
-        return False
-    
-    try:
-        if dry_run:
-            if logger:
-                logger.info(f"[DRY RUN] Extraería: {file_path} → {output_dir}")
-            return True
-        
-        seven_zip_handler.extract_7z(file_path, output_dir)
-        
-        if logger:
-            logger.info(f"✓ Extraído: {file_path.name} → {output_dir.name}/")
-        return True
-        
-    except Exception as e:
-        if logger:
-            logger.error(f"✗ Error al extraer {file_path}: {e}")
-        return False
-
-def extract_archive(file_path, base_output_dir=None, seven_zip_handler=None, dry_run=False, logger=None):
-    """Extrae un archivo según su extensión."""
-    # Determinar directorio de salida
-    if base_output_dir:
-        output_dir = Path(base_output_dir) / file_path.stem
-    else:
-        output_dir = file_path.parent / file_path.stem
-    
-    # Crear directorio si no existe (excepto en dry-run)
-    if not dry_run:
-        output_dir.mkdir(exist_ok=True)
-    
-    # Determinar tipo de archivo y extraer
-    file_ext = file_path.suffix.lower()
-    
-    if file_ext == '.zip':
-        return extract_zip(file_path, output_dir, dry_run, logger)
-    elif file_ext == '.7z':
-        return extract_7z(file_path, output_dir, seven_zip_handler, dry_run, logger)
-    else:
-        if logger:
-            logger.warning(f"Tipo de archivo no soportado: {file_path}")
-        return False
-
-def bulk_extract(directory, output_dir=None, max_depth=None, include_extensions=None, 
-                dry_run=False, remove_archives=False, seven_zip_path=None, logger=None):
-    """Función principal que ejecuta la extracción masiva."""
-    path = Path(directory)
-    
-    # Validar directorio
-    if not path.exists():
-        raise FileNotFoundError(f"El directorio '{directory}' no existe")
-    
-    if not path.is_dir():
-        raise NotADirectoryError(f"'{directory}' no es un directorio")
-    
-    # Inicializar handler de 7-Zip
-    seven_zip_handler = SevenZipHandler(seven_zip_path, logger)
-    
-    # Obtener extensiones soportadas
-    extensions = get_supported_extensions(include_extensions)
-    
-    if logger:
-        logger.info(f"Iniciando búsqueda en: {path.absolute()}")
-        logger.info(f"Extensiones a procesar: {extensions}")
-        if max_depth is not None:
-            logger.info(f"Profundidad máxima: {max_depth} niveles")
-        if dry_run:
-            logger.info("MODO DRY RUN: No se realizarán extracciones reales")
-    
-    # Buscar archivos
-    archive_files = find_archives(directory, extensions, max_depth, logger)
-    
-    if not archive_files:
-        if logger:
-            logger.info("No se encontraron archivos comprimidos para procesar")
-        return 0, 0
-    
-    # Clasificar archivos por tipo
-    zip_files = [f for f in archive_files if f.suffix.lower() == '.zip']
-    z7_files = [f for f in archive_files if f.suffix.lower() == '.7z']
-    other_files = [f for f in archive_files if f not in zip_files and f not in z7_files]
-    
-    total_files = len(archive_files)
-    
-    if logger:
-        logger.info(f"Encontrados {len(zip_files)} archivos ZIP, {len(z7_files)} archivos 7z, {len(other_files)} otros")
-        logger.info("=" * 60)
-    
-    # Procesar archivos
-    success_count = 0
-    
-    for archive_file in archive_files:
-        success = extract_archive(
-            archive_file, 
-            output_dir, 
-            seven_zip_handler,
-            dry_run, 
-            logger
-        )
-        
-        if success:
-            success_count += 1
             
-            # Eliminar archivo original si se especifica
-            if remove_archives and not dry_run:
-                try:
-                    archive_file.unlink()
-                    if logger:
-                        logger.info(f"Eliminado archivo original: {archive_file.name}")
-                except Exception as e:
-                    if logger:
-                        logger.error(f"Error al eliminar {archive_file}: {e}")
-    
-    if logger:
-        logger.info("=" * 60)
-        logger.info(f"Proceso completado: {success_count}/{total_files} archivos procesados correctamente")
-    
-    return success_count, total_files
+        # Filtrar entradas según los patrones de ignore
+        try:
+            entries = path.iterdir()
+            filtered_entries = []
+            for entry in sorted(entries, key=lambda x: (not x.is_dir(), x.name.lower())):
+                if not should_ignore(entry, ignore_dirs, ignore_files):
+                    filtered_entries.append(entry)
+                
+            entries = filtered_entries
+            
+            if no_files:
+                entries = [e for e in entries if e.is_dir()]
+                
+            for i, entry in enumerate(entries):
+                is_last = i == len(entries) - 1
+                current_prefix, child_prefix = get_tree_chars(is_last)
+                
+                file.write(f"{prefix}{current_prefix}{entry.name}")
+                if entry.is_dir():
+                    file.write("/\n")
+                    write_tree(file, entry, prefix + child_prefix, current_depth + 1)
+                else:
+                    file.write("\n")
+        except PermissionError:
+            logger.warning(f"Permiso denegado para acceder a: {path}")
+            file.write(f"{prefix}!-- Permiso denegado --!\n")
+        except Exception as e:
+            logger.error(f"Error al procesar {path}: {str(e)}")
+            file.write(f"{prefix}!-- Error: {str(e)} --!\n")
 
-def run_batch(batch_file, logger=None):
-    """Ejecuta el procesamiento masivo basado en un archivo de configuración YAML."""
+    # Crear el objeto Path para manejar rutas
+    root = Path(root_path).resolve()
+    
+    # Verificar que el directorio existe
+    if not root.exists():
+        raise FileNotFoundError(f"El directorio {root_path} no existe")
+    
+    logger.info(f"Escaneando directorio: {root}")
+    logger.info(f"Usando archivo ignore: {ignore_file}")
+    
+    # Abrir archivo de salida
+    with open(output_file, 'w', encoding='utf-8') as f:
+        # Agregar metadata al archivo
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(f"# Estructura de directorios generada el {timestamp}\n")
+        f.write(f"# Directorio escaneado: {root}\n")
+        f.write(f"# Archivo ignore utilizado: {ignore_file}\n")
+        f.write(f"# Solo directorios: {'Sí' if no_files else 'No'}\n")
+        f.write(f"# Profundidad máxima: {'Sin límite' if max_depth is None else max_depth}\n")
+        f.write(f"{'='*60}\n\n")
+        
+        f.write(f"{root.name}/\n")
+        write_tree(f, root)
+
+def run_batch(batch_file):
+    """
+    Ejecuta el escaneo masivo basado en un archivo de configuración YAML.
+    """
+    logger = logging.getLogger(__name__)
+    
     try:
         if not os.path.exists(batch_file):
             raise FileNotFoundError(f"El archivo de configuración batch no existe: {batch_file}")
@@ -515,81 +303,49 @@ def run_batch(batch_file, logger=None):
         with open(batch_file, 'r', encoding='utf-8') as f:
             batch_config = yaml.safe_load(f)
         
-        extractions = batch_config.get('extractions', [])
-        if not extractions:
-            if logger:
-                logger.error("No se encontraron configuraciones de extracción en el archivo batch")
+        projects = batch_config.get('projects', [])
+        if not projects:
+            logger.error("No se encontraron proyectos en el archivo de configuración batch")
             return
         
-        if logger:
-            logger.info(f"Iniciando procesamiento masivo de {len(extractions)} configuración(es)...")
-            logger.info("=" * 60)
+        logger.info(f"Iniciando escaneo masivo de {len(projects)} proyecto(s)...")
         
-        total_success = 0
-        total_files = 0
-        
-        for i, extraction in enumerate(extractions, 1):
+        for i, project in enumerate(projects, 1):
             # Validar campos requeridos
-            path = extraction.get('path')
+            path = project.get('path')
             if not path:
-                if logger:
-                    logger.error(f"Error en configuración {i}: Falta el campo 'path'")
+                logger.error(f"Error en proyecto {i}: Falta el campo 'path'")
                 continue
             
             # Campos opcionales con valores por defecto
-            output_dir = extraction.get('output_dir')
-            max_depth = extraction.get('max_depth')
-            include_extensions = extraction.get('include_extensions')
-            dry_run = extraction.get('dry_run', False)
-            remove_archives = extraction.get('remove_archives', False)
-            config_log_file = extraction.get('log_file')
-            seven_zip_path = extraction.get('7zip_path')
+            ignore_file = project.get('ignore_file', 'ignore.yml')
+            output = project.get('output', f'estructura_proyecto_{i}.txt')
+            no_files = project.get('no_files', False)
+            max_depth = project.get('max_depth')  # None si no se especifica
             
-            if logger:
-                logger.info(f"\n[{i}/{len(extractions)}] Procesando configuración:")
-                logger.info(f"  - Ruta: {path}")
-                logger.info(f"  - Directorio salida: {output_dir or 'Misma ubicación'}")
-                logger.info(f"  - Profundidad máxima: {max_depth or 'Sin límite'}")
-                logger.info(f"  - Dry run: {'Sí' if dry_run else 'No'}")
-                logger.info(f"  - Eliminar originales: {'Sí' if remove_archives else 'No'}")
-                if seven_zip_path:
-                    logger.info(f"  - Ruta 7z personalizada: {seven_zip_path}")
-            
-            # Configurar logger específico si se especifica
-            config_logger = logger
-            if config_log_file:
-                config_logger = setup_logging(config_log_file, verbose=False, quiet=False)
+            logger.info(f"[{i}/{len(projects)}] Procesando proyecto: {path}")
+            logger.debug(f"  - Archivo ignore: {ignore_file}")
+            logger.debug(f"  - Archivo salida: {output}")
+            logger.debug(f"  - Solo directorios: {'Sí' if no_files else 'No'}")
+            logger.debug(f"  - Profundidad máxima: {'Sin límite' if max_depth is None else max_depth}")
             
             try:
-                success, total = bulk_extract(
+                scan_directory(
                     path,
-                    output_dir=output_dir,
-                    max_depth=max_depth,
-                    include_extensions=include_extensions,
-                    dry_run=dry_run,
-                    remove_archives=remove_archives,
-                    seven_zip_path=seven_zip_path,
-                    logger=config_logger
+                    output,
+                    ignore_file=ignore_file,
+                    no_files=no_files,
+                    max_depth=max_depth
                 )
-                
-                total_success += success
-                total_files += total
-                
-                if logger:
-                    logger.info(f"  ✓ Configuración {i} completada: {success}/{total} archivos")
-                    
+                logger.info(f"  ✓ Estructura guardada exitosamente en: {output}")
             except Exception as e:
-                if logger:
-                    logger.error(f"  ✗ Error al procesar configuración {i}: {str(e)}")
+                logger.error(f"  ✗ Error al procesar proyecto {i}: {str(e)}")
                 continue
         
-        if logger:
-            logger.info("\n" + "=" * 60)
-            logger.info(f"Procesamiento masivo completado: {total_success}/{total_files} archivos totales")
+        logger.info("Escaneo masivo completado")
         
     except Exception as e:
-        if logger:
-            logger.error(f"Error en el procesamiento masivo: {e}")
+        logger.error(f"Error en el escaneo masivo: {e}")
         raise
 
 def main():
@@ -599,42 +355,31 @@ def main():
         args = parse_arguments()
         
         # Configurar logging
-        logger = setup_logging(args.log_file, args.verbose, args.quiet)
-        
+        logger = setup_logging(verbose=args.verbose, quiet=args.quiet)
+
         # Validar argumentos
         if args.batch_config:
             # Modo batch
             if args.path:
                 logger.warning("El argumento 'path' será ignorado al usar --batch-config")
-            run_batch(args.batch_config, logger)
+            run_batch(args.batch_config)
         else:
             # Modo individual
             if not args.path:
-                logger.error("Error: Debe especificar una ruta o usar --batch-config para procesamiento masivo")
+                logger.error("Debe especificar una ruta o usar --batch-config para escaneo masivo")
                 return 1
             
-            success, total = bulk_extract(
+            scan_directory(
                 args.path,
-                output_dir=args.output_dir,
-                max_depth=args.max_depth,
-                include_extensions=args.include_extensions,
-                dry_run=args.dry_run,
-                remove_archives=args.remove_archives,
-                seven_zip_path=getattr(args, '7zip_path', None),
-                logger=logger
+                args.output,
+                ignore_file=args.ignore_file,
+                no_files=args.no_files,
+                max_depth=args.max_depth
             )
-            
-            if not args.quiet:
-                if success == total:
-                    logger.info("¡Todos los archivos se procesaron exitosamente!")
-                else:
-                    logger.warning(f"Se procesaron {success} de {total} archivos. Revisa los errores arriba.")
+            logger.info(f"Estructura guardada exitosamente en: {args.output}")
         
-    except KeyboardInterrupt:
-        print("\nOperación cancelada por el usuario")
-        return 1
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logging.error(f"Error: {str(e)}")
         return 1
     
     return 0

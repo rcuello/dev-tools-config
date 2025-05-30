@@ -4,7 +4,7 @@ projects:
   #- path: C:\DevOps\MyGitHub\Udemy\amazonashop\QA\tests\performance
   #  ignore_file: scan-config/ignore-rules/scan_ignore_k6.yml
   #  output: salida_performance_k6.txt
-  - path: C:\DevOps\MyGitHub\Udemy\amazonashop
+  - path: C:\DevOps\MyGitHub\Udemy\amazonashop\
     ignore_file: scan-config/ignore-rules/scan_ignore_general.yml
     output: salida_ecommerce.txt
     no_files: true
