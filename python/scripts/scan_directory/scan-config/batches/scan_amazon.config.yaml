@@ -1,7 +1,7 @@
 # Archivo de configuración para escaneo masivo de directorios
 projects:
   - path: C:\DevOps\MyGitHub\Udemy\amazonashop\
-    ignore_file: scan-config/ignore-rules/scan_ignore_amazonshop2.yaml
+    ignore_file: scan-config/ignore-rules/scan_ignore_amazonshop.yaml
     output: salida_ecommerce.txt
     no_files: true
     max_depth: 2

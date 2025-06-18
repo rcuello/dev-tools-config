@@ -353,3 +353,6 @@ if __name__ == "__main__":
 # python scan_directory.py /ruta/del/proyecto --ignore-file mi_ignore.yml
 # python scan_directory.py "C:\DevOps\MyGitHub\Udemy\amazonashop" --ignore-file "C:\DevOps\MarketPlace\py-utils\scan_ignore.yaml"
 # python scan_directory.py "C:\DevOps\MyGitHub\Udemy\amazonashop\QA\tests\performance" --ignore-file "C:\DevOps\MarketPlace\py-utils\scan_ignore.yaml"
+# python scan_directory.py "C:\DevOps\MyGitHub\n8n-learning-journey" --ignore-file "scan-config\ignore-rules\scan_ignore_general.yaml"
+# python scan_directory.py "C:\DevOps\MyGitHub\insights-lm-public" --ignore-file "scan-config\ignore-rules\scan_ignore_general.yaml"
+# python scan_directory.py "C:\DevOps\MyGitHub\smartbase-notebooklm" --ignore-file "scan-config\ignore-rules\scan_ignore_general.yaml"
