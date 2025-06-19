@@ -1,4 +1,4 @@
-# Estructura de directorios generada el 2025-06-17 18:07:23
+# Estructura de directorios generada el 2025-06-19 10:55:43
 # Directorio escaneado: C:\DevOps\MyGitHub\smartbase-notebooklm
 # Archivo ignore utilizado: scan-config\ignore-rules\scan_ignore_general.yaml
 # Solo directorios: No
@@ -9,7 +9,21 @@ smartbase-notebooklm/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml
-├── arquitecture/
+├── architecture/
+│   ├── n8n-integration/
+│   │   └── debugging/
+│   │       └── workflows/
+│   │           └── wf-01/
+│   │               └── 1.generate-notebook-details/
+│   │                   ├── 3.extract-text-workflow/
+│   │                   │   ├── 1.when-executed-by-another-workflow.json
+│   │                   │   └── 2.generate-signed-url.json
+│   │                   ├── 1.webhook-input.json
+│   │                   ├── 2.if-false-branch.json
+│   │                   ├── 3.extract-text-workflow.json
+│   │                   ├── 4.1.structured-output-parser.json
+│   │                   ├── 4.generate-title-description.json
+│   │                   └── 5.respond-to-webhook.json
 │   └── README.md
 ├── backend/
 │   ├── n8n/
@@ -22,8 +36,20 @@ smartbase-notebooklm/
 │   │   └── InsightsLM___Upsert_to_Vector_Store.json
 │   └── README.md
 ├── frontend/
+│   ├── docs/
+│   │   └── attachments/
+│   │       ├── supabase-access-token.png
+│   │       ├── supabase-account-preferences.png
+│   │       ├── supabase-copy-paste-sql-query.png
+│   │       ├── supabase-dashboard-check-tables.png
+│   │       ├── supabase-migration-list.png
+│   │       ├── supabase-migration-success.png
+│   │       ├── supabase-migration-Y.png
+│   │       ├── supabase-project-link-temp-folder.png
+│   │       └── supabase-project-link.png
 │   ├── prompts/
-│   │   └── asistente-dev-rag.md
+│   │   ├── asistente-dev-rag.md
+│   │   └── webprodigies-ai-prompt-guide.md
 │   ├── public/
 │   │   ├── file-types/
 │   │   │   ├── DOC (1).png
@@ -33,8 +59,10 @@ smartbase-notebooklm/
 │   │   │   └── WEB (1).svg
 │   │   ├── favicon.ico
 │   │   ├── placeholder.svg
-│   │   ├── robots.txt
-│   │   └── video.png
+│   │   └── robots.txt
+│   ├── scripts/
+│   │   ├── check-functions.js
+│   │   └── deploy-functions.js
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── auth/
@@ -147,9 +175,17 @@ smartbase-notebooklm/
 │   │   │   ├── Index.tsx
 │   │   │   ├── Notebook.tsx
 │   │   │   └── NotFound.tsx
+│   │   ├── repositories/
+│   │   │   ├── interfaces/
+│   │   │   │   └── auth.repository.interface.ts
+│   │   │   └── supabase-auth.repository.ts
 │   │   ├── services/
-│   │   │   └── authService.ts
+│   │   │   ├── auth.factory.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── authService.ts
+│   │   │   └── logger.ts
 │   │   ├── types/
+│   │   │   ├── auth.ts
 │   │   │   └── message.ts
 │   │   ├── App.css
 │   │   ├── App.tsx
@@ -157,6 +193,14 @@ smartbase-notebooklm/
 │   │   ├── main.tsx
 │   │   └── vite-env.d.ts
 │   ├── supabase/
+│   │   ├── .temp/
+│   │   │   ├── cli-latest
+│   │   │   ├── gotrue-version
+│   │   │   ├── pooler-url
+│   │   │   ├── postgres-version
+│   │   │   ├── project-ref
+│   │   │   ├── rest-version
+│   │   │   └── storage-version
 │   │   ├── functions/
 │   │   │   ├── audio-generation-callback/
 │   │   │   │   └── index.ts
@@ -184,6 +228,7 @@ smartbase-notebooklm/
 │   ├── .env
 │   ├── .env.example
 │   ├── .gitignore
+│   ├── .prettierrc
 │   ├── bun.lockb
 │   ├── components.json
 │   ├── eslint.config.js
@@ -192,7 +237,9 @@ smartbase-notebooklm/
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── postcss.config.js
+│   ├── POSTGRES_SETUP.md
 │   ├── README.md
+│   ├── SUPABASE_SETUP.md
 │   ├── tailwind.config.ts
 │   ├── tsconfig.app.json
 │   ├── tsconfig.json

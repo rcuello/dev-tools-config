@@ -1,0 +1,4 @@
+pyyaml==6.0.1        # Para manejo de archivos de configuración YAML
+svgpathtools==1.7.1      # Para manipulación de SVGs
+
+# pip install -r requirements.txt
