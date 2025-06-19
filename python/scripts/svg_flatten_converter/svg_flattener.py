@@ -9,6 +9,7 @@ en un único elemento <path>.
 
 Uso:
     python svg_flattener.py input.svg output.svg
+    python svg_flattener.py bot-to-flattenize.svg output/output.svg
 """
 
 import argparse
