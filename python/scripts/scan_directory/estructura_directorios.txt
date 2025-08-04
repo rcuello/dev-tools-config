@@ -1,248 +1,253 @@
-# Estructura de directorios generada el 2025-06-19 10:55:43
-# Directorio escaneado: C:\DevOps\MyGitHub\smartbase-notebooklm
+# Estructura de directorios generada el 2025-07-30 13:28:32
+# Directorio escaneado: C:\DevOps\MyGitHub\kubernetes-learning
 # Archivo ignore utilizado: scan-config\ignore-rules\scan_ignore_general.yaml
 # Solo directorios: No
 # Profundidad máxima: Sin límite
 ============================================================
 
-smartbase-notebooklm/
+kubernetes-learning/
+├── .docs/
+│   └── dev-notes/
+│       └── prompts/
+│           └── experto-kubernetes.md
 ├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── architecture/
-│   ├── n8n-integration/
-│   │   └── debugging/
-│   │       └── workflows/
-│   │           └── wf-01/
-│   │               └── 1.generate-notebook-details/
-│   │                   ├── 3.extract-text-workflow/
-│   │                   │   ├── 1.when-executed-by-another-workflow.json
-│   │                   │   └── 2.generate-signed-url.json
-│   │                   ├── 1.webhook-input.json
-│   │                   ├── 2.if-false-branch.json
-│   │                   ├── 3.extract-text-workflow.json
-│   │                   ├── 4.1.structured-output-parser.json
-│   │                   ├── 4.generate-title-description.json
-│   │                   └── 5.respond-to-webhook.json
-│   └── README.md
-├── backend/
-│   ├── n8n/
-│   │   ├── Import_Insights_LM_Workflows.json
-│   │   ├── InsightsLM___Chat.json
-│   │   ├── InsightsLM___Extract_Text.json
-│   │   ├── InsightsLM___Generate_Notebook_Details.json
-│   │   ├── InsightsLM___Podcast_Generation.json
-│   │   ├── InsightsLM___Process_Additional_Sources.json
-│   │   └── InsightsLM___Upsert_to_Vector_Store.json
-│   └── README.md
-├── frontend/
-│   ├── docs/
-│   │   └── attachments/
-│   │       ├── supabase-access-token.png
-│   │       ├── supabase-account-preferences.png
-│   │       ├── supabase-copy-paste-sql-query.png
-│   │       ├── supabase-dashboard-check-tables.png
-│   │       ├── supabase-migration-list.png
-│   │       ├── supabase-migration-success.png
-│   │       ├── supabase-migration-Y.png
-│   │       ├── supabase-project-link-temp-folder.png
-│   │       └── supabase-project-link.png
-│   ├── prompts/
-│   │   ├── asistente-dev-rag.md
-│   │   └── webprodigies-ai-prompt-guide.md
-│   ├── public/
-│   │   ├── file-types/
-│   │   │   ├── DOC (1).png
-│   │   │   ├── MP3 (1).png
-│   │   │   ├── PDF (1).svg
-│   │   │   ├── TXT (1).png
-│   │   │   └── WEB (1).svg
-│   │   ├── favicon.ico
-│   │   ├── placeholder.svg
-│   │   └── robots.txt
-│   ├── scripts/
-│   │   ├── check-functions.js
-│   │   └── deploy-functions.js
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── auth/
-│   │   │   │   ├── AuthForm.tsx
-│   │   │   │   └── ProtectedRoute.tsx
-│   │   │   ├── chat/
-│   │   │   │   ├── CitationButton.tsx
-│   │   │   │   ├── MarkdownRenderer.tsx
-│   │   │   │   ├── SourceContentViewer.tsx
-│   │   │   │   └── SourceViewer.tsx
-│   │   │   ├── dashboard/
-│   │   │   │   ├── DashboardHeader.tsx
-│   │   │   │   ├── EmptyDashboard.tsx
-│   │   │   │   ├── NotebookCard.tsx
-│   │   │   │   └── NotebookGrid.tsx
-│   │   │   ├── notebook/
-│   │   │   │   ├── AddSourcesDialog.tsx
-│   │   │   │   ├── AudioPlayer.tsx
-│   │   │   │   ├── ChatArea.tsx
-│   │   │   │   ├── CopiedTextDialog.tsx
-│   │   │   │   ├── MobileNotebookTabs.tsx
-│   │   │   │   ├── MultipleWebsiteUrlsDialog.tsx
-│   │   │   │   ├── NotebookHeader.tsx
-│   │   │   │   ├── NoteEditor.tsx
-│   │   │   │   ├── PasteTextDialog.tsx
-│   │   │   │   ├── RenameSourceDialog.tsx
-│   │   │   │   ├── SaveToNoteButton.tsx
-│   │   │   │   ├── SourcesSidebar.tsx
-│   │   │   │   ├── StudioSidebar.tsx
-│   │   │   │   ├── WebsiteUrlInput.tsx
-│   │   │   │   └── YouTubeUrlInput.tsx
-│   │   │   └── ui/
-│   │   │       ├── accordion.tsx
-│   │   │       ├── alert-dialog.tsx
-│   │   │       ├── alert.tsx
-│   │   │       ├── aspect-ratio.tsx
-│   │   │       ├── avatar.tsx
-│   │   │       ├── badge.tsx
-│   │   │       ├── breadcrumb.tsx
-│   │   │       ├── button.tsx
-│   │   │       ├── calendar.tsx
-│   │   │       ├── card.tsx
-│   │   │       ├── carousel.tsx
-│   │   │       ├── chart.tsx
-│   │   │       ├── checkbox.tsx
-│   │   │       ├── collapsible.tsx
-│   │   │       ├── command.tsx
-│   │   │       ├── context-menu.tsx
-│   │   │       ├── dialog.tsx
-│   │   │       ├── drawer.tsx
-│   │   │       ├── dropdown-menu.tsx
-│   │   │       ├── form.tsx
-│   │   │       ├── hover-card.tsx
-│   │   │       ├── input-otp.tsx
-│   │   │       ├── input.tsx
-│   │   │       ├── label.tsx
-│   │   │       ├── Logo.tsx
-│   │   │       ├── menubar.tsx
-│   │   │       ├── navigation-menu.tsx
-│   │   │       ├── pagination.tsx
-│   │   │       ├── popover.tsx
-│   │   │       ├── progress.tsx
-│   │   │       ├── radio-group.tsx
-│   │   │       ├── resizable.tsx
-│   │   │       ├── scroll-area.tsx
-│   │   │       ├── select.tsx
-│   │   │       ├── separator.tsx
-│   │   │       ├── sheet.tsx
-│   │   │       ├── sidebar.tsx
-│   │   │       ├── skeleton.tsx
-│   │   │       ├── slider.tsx
-│   │   │       ├── sonner.tsx
-│   │   │       ├── switch.tsx
-│   │   │       ├── table.tsx
-│   │   │       ├── tabs.tsx
-│   │   │       ├── textarea.tsx
-│   │   │       ├── toast.tsx
-│   │   │       ├── toaster.tsx
-│   │   │       ├── toggle-group.tsx
-│   │   │       ├── toggle.tsx
-│   │   │       ├── tooltip.tsx
-│   │   │       └── use-toast.ts
-│   │   ├── contexts/
-│   │   │   └── AuthContext.tsx
-│   │   ├── hooks/
-│   │   │   ├── use-mobile.tsx
-│   │   │   ├── use-toast.ts
-│   │   │   ├── useAudioOverview.tsx
-│   │   │   ├── useChatMessages.tsx
-│   │   │   ├── useDocumentProcessing.tsx
-│   │   │   ├── useFileUpload.tsx
-│   │   │   ├── useIsDesktop.tsx
-│   │   │   ├── useNotebookDelete.tsx
-│   │   │   ├── useNotebookGeneration.tsx
-│   │   │   ├── useNotebooks.tsx
-│   │   │   ├── useNotebookUpdate.tsx
-│   │   │   ├── useNotes.tsx
-│   │   │   ├── useSourceDelete.tsx
-│   │   │   ├── useSources.tsx
-│   │   │   └── useSourceUpdate.tsx
-│   │   ├── integrations/
-│   │   │   └── supabase/
-│   │   │       ├── client.ts
-│   │   │       └── types.ts
-│   │   ├── lib/
-│   │   │   └── utils.ts
-│   │   ├── pages/
-│   │   │   ├── Auth.tsx
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── Index.tsx
-│   │   │   ├── Notebook.tsx
-│   │   │   └── NotFound.tsx
-│   │   ├── repositories/
-│   │   │   ├── interfaces/
-│   │   │   │   └── auth.repository.interface.ts
-│   │   │   └── supabase-auth.repository.ts
-│   │   ├── services/
-│   │   │   ├── auth.factory.ts
-│   │   │   ├── auth.service.ts
-│   │   │   ├── authService.ts
-│   │   │   └── logger.ts
-│   │   ├── types/
-│   │   │   ├── auth.ts
-│   │   │   └── message.ts
-│   │   ├── App.css
-│   │   ├── App.tsx
-│   │   ├── index.css
-│   │   ├── main.tsx
-│   │   └── vite-env.d.ts
-│   ├── supabase/
-│   │   ├── .temp/
-│   │   │   ├── cli-latest
-│   │   │   ├── gotrue-version
-│   │   │   ├── pooler-url
-│   │   │   ├── postgres-version
-│   │   │   ├── project-ref
-│   │   │   ├── rest-version
-│   │   │   └── storage-version
-│   │   ├── functions/
-│   │   │   ├── audio-generation-callback/
-│   │   │   │   └── index.ts
-│   │   │   ├── generate-audio-overview/
-│   │   │   │   └── index.ts
-│   │   │   ├── generate-note-title/
-│   │   │   │   └── index.ts
-│   │   │   ├── generate-notebook-content/
-│   │   │   │   └── index.ts
-│   │   │   ├── process-additional-sources/
-│   │   │   │   └── index.ts
-│   │   │   ├── process-document/
-│   │   │   │   └── index.ts
-│   │   │   ├── process-document-callback/
-│   │   │   │   └── index.ts
-│   │   │   ├── refresh-audio-url/
-│   │   │   │   └── index.ts
-│   │   │   ├── send-chat-message/
-│   │   │   │   └── index.ts
-│   │   │   └── webhook-handler/
-│   │   │       └── index.ts
-│   │   ├── migrations/
-│   │   │   └── 20250606152423_v0.1.sql
-│   │   └── config.toml
-│   ├── .env
-│   ├── .env.example
-│   ├── .gitignore
-│   ├── .prettierrc
-│   ├── bun.lockb
-│   ├── components.json
-│   ├── eslint.config.js
-│   ├── index.html
-│   ├── LICENSE
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── POSTGRES_SETUP.md
-│   ├── README.md
-│   ├── SUPABASE_SETUP.md
-│   ├── tailwind.config.ts
-│   ├── tsconfig.app.json
-│   ├── tsconfig.json
-│   ├── tsconfig.node.json
-│   └── vite.config.ts
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── 1-bug.md
+│   │   ├── 2-feature-request.md
+│   │   ├── 3-epic.md
+│   │   └── 4-idea.md
+│   └── PULL_REQUEST_TEMPLATE/
+│       └── pull_request_template.md
+├── cheatsheets/
+│   ├── git-bash-kubectl-alias.md
+│   └── powershell-kubectl-alias.md
+├── cloud-providers/
+│   ├── 01-aws/
+│   │   └── 01-que-es-eks.md
+│   ├── 02-gcp/
+│   │   └── 01-que-es-gke.md
+│   └── 03-azure/
+│       └── 01-que-es-aks.md
+├── courses/
+│   └── platzi-kubernetes-fundamentos/
+│       ├── 01-intro-k8s/
+│       │   └── readme.md
+│       ├── 02-local-cluster/
+│       │   └── readme.md
+│       ├── 03-architecture/
+│       │   └── readme.md
+│       ├── 04-kubectl-api/
+│       │   ├── readme.md
+│       │   └── simple-pod.yaml
+│       ├── 05-declarative-vs-imperative/
+│       │   ├── mypod.yaml
+│       │   └── README.md
+│       ├── 06-pods-replicasets-deployments/
+│       │   ├── deployment.yaml
+│       │   ├── README.md
+│       │   └── replicaset.yaml
+│       ├── 07-services-ingress/
+│       │   └── readme.md
+│       ├── 08-configs-secrets/
+│       │   ├── auth-config.yaml
+│       │   ├── auth-secret.yaml
+│       │   └── readme.md
+│       ├── 09-networking/
+│       │   └── readme.md
+│       ├── 10-services-clusterip-nodeport-loadbalancer/
+│       │   ├── deployment-clusterip.yaml
+│       │   ├── deployment-loadbalancer.yaml
+│       │   ├── deployment-nodeport.yaml
+│       │   ├── externalname.yaml
+│       │   └── readme.md
+│       ├── 11-storage-pv-pvc/
+│       │   ├── tmp-files/
+│       │   │   └── index.html
+│       │   ├── pod.yaml
+│       │   ├── pv-pvc.yaml
+│       │   └── readme.md
+│       ├── 12-daemonsets-statefulsets/
+│       │   ├── daemonset.yaml
+│       │   ├── pv-pvc.yaml
+│       │   ├── readme.md
+│       │   └── statefulset.yaml
+│       ├── 13-multi-tier/
+│       │   ├── curso-de-docker-fundamentos/
+│       │   │   ├── backend/
+│       │   │   │   ├── app.py
+│       │   │   │   ├── Dockerfile
+│       │   │   │   └── requirements.txt
+│       │   │   ├── frontend/
+│       │   │   │   ├── sitio/
+│       │   │   │   │   ├── linktree.html
+│       │   │   │   │   └── requests.js
+│       │   │   │   └── Dockerfile
+│       │   │   ├── k8s/
+│       │   │   │   ├── backend/
+│       │   │   │   │   ├── deployment.yaml
+│       │   │   │   │   └── service.yaml
+│       │   │   │   └── frontend/
+│       │   │   │       ├── deployment.yaml
+│       │   │   │       └── service.yaml
+│       │   │   └── docker-compose.yml
+│       │   └── README.md
+│       ├── 14-jobs-cronjobs/
+│       │   ├── backup-cronjob.yaml
+│       │   ├── backup-job.yaml
+│       │   ├── mysql-secret.yaml
+│       │   ├── mysql-sts.yaml
+│       │   └── readme.md
+│       ├── 15-autoscaling-hpa-vpa/
+│       │   ├── curso-de-docker-fundamentos/
+│       │   │   ├── backend/
+│       │   │   │   ├── app.py
+│       │   │   │   ├── Dockerfile
+│       │   │   │   └── requirements.txt
+│       │   │   ├── frontend/
+│       │   │   │   ├── sitio/
+│       │   │   │   │   ├── linktree.html
+│       │   │   │   │   └── requests.js
+│       │   │   │   └── Dockerfile
+│       │   │   ├── k8s/
+│       │   │   │   ├── backend/
+│       │   │   │   │   ├── deployment.yaml
+│       │   │   │   │   ├── hpa.yaml
+│       │   │   │   │   └── service.yaml
+│       │   │   │   └── frontend/
+│       │   │   │       ├── deployment.yaml
+│       │   │   │       ├── hpa.yaml
+│       │   │   │       └── service.yaml
+│       │   │   ├── docker-compose.yml
+│       │   │   └── README.md
+│       │   ├── app.yaml
+│       │   ├── hpa.yaml
+│       │   ├── readme.md
+│       │   └── vpa.yaml
+│       ├── 16-scaling-demo/
+│       │   └── readme.md
+│       ├── 17-intro-cloud-k8s/
+│       │   └── readme.md
+│       ├── 18-cloud-setup/
+│       │   ├── aws-readme.md
+│       │   └── simple-cluster.yaml
+│       ├── 20-aws-eks-deploy/
+│       │   ├── app/
+│       │   │   ├── backend/
+│       │   │   │   ├── app.py
+│       │   │   │   ├── backendbuild.sh
+│       │   │   │   ├── Dockerfile
+│       │   │   │   └── requirements.txt
+│       │   │   ├── frontend/
+│       │   │   │   ├── sitio/
+│       │   │   │   │   ├── linktree.html
+│       │   │   │   │   └── requests.js
+│       │   │   │   ├── Dockerfile
+│       │   │   │   └── frontendbuild.sh
+│       │   │   ├── k8s/
+│       │   │   │   ├── backend/
+│       │   │   │   │   ├── deployment.yaml
+│       │   │   │   │   ├── hpa.yaml
+│       │   │   │   │   └── service.yaml
+│       │   │   │   ├── database/
+│       │   │   │   │   ├── mysql-deployment.yaml
+│       │   │   │   │   ├── mysql-pv-pvc.yaml
+│       │   │   │   │   └── secret.yaml
+│       │   │   │   ├── db-job-init/
+│       │   │   │   │   ├── config.yaml
+│       │   │   │   │   └── init-job.yaml
+│       │   │   │   └── frontend/
+│       │   │   │       ├── deployment.yaml
+│       │   │   │       ├── hpa.yaml
+│       │   │   │       └── service.yaml
+│       │   │   └── docker-compose.yml
+│       │   ├── ekscluster.yaml
+│       │   └── README.md
+│       ├── 21-troubleshooting-guide/
+│       │   ├── k8s/
+│       │   │   ├── backend/
+│       │   │   │   └── deployment.yaml
+│       │   │   └── db-job-init/
+│       │   │       └── init-job.yaml
+│       │   └── readme.md
+│       ├── 22-others-use-cases/
+│       │   ├── deepseek-local-k8s/
+│       │   │   ├── optimized-server-deployment.yaml
+│       │   │   ├── server-deployment.yaml
+│       │   │   └── ui-deployment.yaml
+│       │   └── README.md
+│       ├── 23-certifications/
+│       │   └── README.md
+│       ├── 24-final-deploy/
+│       │   └── README.md
+│       └── README.md
+├── general-notes/
+│   ├── 00-introduccion/
+│   │   ├── 01-que-es-kubernetes.md
+│   │   ├── 02-que-es-minikube.md
+│   │   └── 03-que-es-kubectl.md
+│   ├── 01-fundamentos-kubernetes/
+│   │   ├── 01-imperative-vs-declarative.md
+│   │   ├── 02-namespaces.md
+│   │   ├── 03-pods.md
+│   │   ├── 04-replicaset.md
+│   │   ├── 05-deployments.md
+│   │   ├── 06-deployment-rolling-update.md
+│   │   ├── 07-deployment-rollout.md
+│   │   ├── 08-port-forward.md
+│   │   └── 09-yaml-attributes.md
+│   ├── 02-configuracion-entorno/
+│   │   ├── 01-instalar-minikube-windows-docker.md
+│   │   ├── 02-configurar-kubectl-en-windows.md
+│   │   ├── acceso-archivo-kube-config.md
+│   │   └── estructura-ejemplo-kube-config.md
+│   ├── 03-service-ingress/
+│   │   ├── 01-service/
+│   │   │   ├── labs/
+│   │   │   │   └── 01-configurar-node-port.md
+│   │   │   └── 01-service.md
+│   │   ├── 02-ingress/
+│   │   │   ├── labs/
+│   │   │   │   ├── 01-configurar-ingress.md
+│   │   │   │   ├── 02-configurar-ingress-declarativo.md
+│   │   │   │   ├── example-ingress.yaml
+│   │   │   │   └── hello-app-ingress.yaml
+│   │   │   ├── 01-ingress.md
+│   │   │   └── 02-configurar-ingress.md
+│   │   ├── 00-introduccion-service-ingress.md
+│   │   ├── 04-volumenes-persistentes.md
+│   │   ├── ingress-workflow.png
+│   │   └── service-ingress.md
+│   ├── 04-configuracion-datos-sensibles/
+│   │   ├── 01-configmap.md
+│   │   ├── 02-secrets.md
+│   │   ├── 03-configmap-secret.md
+│   │   ├── ecommerce-config.yaml
+│   │   └── ecommerce-secrets.yaml
+│   ├── 05-networking/
+│   │   ├── 01-networking.md
+│   │   ├── 02-networking-pods.md
+│   │   ├── 03-kube-proxy.md
+│   │   ├── 04-k8s-networking-layers-for-devs.md
+│   │   ├── kube-proxy.png
+│   │   ├── osi-tcp-ip.png
+│   │   ├── red-k8s.png
+│   │   ├── red-pods.png
+│   │   ├── regla1.png
+│   │   ├── regla2.png
+│   │   └── regla3.png
+│   ├── 06-gestion-aplicaciones/
+│   │   ├── 01-que-es-helm.md
+│   │   ├── 02-instalar-helm.md
+│   │   └── 03-ejemplo-chart-nginx.md
+│   ├── 07-gestion-clusters/
+│   │   └── 01-que-es-rancher.md
+│   ├── 10-precios/
+│   │   ├── 00-costos-kubernetes-nube.md
+│   │   └── comparacion-precios.png
+│   └── 99-troubleshooting/
+│       ├── az-cli-certificado-zscaler.md
+│       ├── minikube-certificado-zscaler.md
+│       ├── nodejs-local-issuer-error.md
+│       └── resumen-errores-comunes.md
+├── LICENSE
 └── README.md

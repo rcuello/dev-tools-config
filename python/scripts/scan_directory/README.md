@@ -29,6 +29,11 @@ cd scan-directory
 python -m venv .venv
 ````
 
+⚠️ Si tienes varias versiones de Python, usa 'py -3.11' en Windows:
+```bash
+py -3.11 -m venv .venv
+```
+
 Activa el entorno virtual:
 
 * En Linux/macOS:

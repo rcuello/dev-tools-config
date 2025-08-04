@@ -9,6 +9,10 @@ ignore_directories:
   - .vscode
   - dist
   - build
+  - .venv 
+  - .pytest_cache
+  - .idea
+
 
 # Archivos a ignorar
 ignore_files:
