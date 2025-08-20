@@ -36,174 +36,48 @@ from playwright.async_api import async_playwright
 import aiohttp
 
 
-class Config:
-    """Configuración centralizada del convertidor."""
+class TemplateManager:
+    """Gestor de plantillas CSS y HTML."""
     
-    DEFAULT_CSS = """
-    @page {
-        margin: 2cm;
-        size: A4;
-    }
-
-    body {
-        font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 
-                     'Symbola', 'DejaVu Sans', Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        font-size: 12pt;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        color: #2c3e50;
-        margin-top: 1.5em;
-        margin-bottom: 0.8em;
-        font-weight: bold;
-    }
-
-    h1 {
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 0.3em;
-    }
-
-    h2 {
-        border-bottom: 1px solid #bdc3c7;
-        padding-bottom: 0.2em;
-    }
-
-    code {
-        background-color: #f8f9fa;
-        padding: 2px 4px;
-        border-radius: 3px;
-        font-family: 'Consolas', 'DejaVu Sans Mono', monospace;
-        font-size: 0.9em;
-    }
-
-    pre {
-        background-color: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 4px;
-        padding: 1em;
-        overflow-x: auto;
-    }
-
-    blockquote {
-        border-left: 4px solid #3498db;
-        margin: 1em 0;
-        padding: 0.5em 1em;
-        background-color: #f8f9fa;
-        font-style: italic;
-    }
-
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 1em 0;
-    }
-
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
-
-    img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 1em auto;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    /* Contenedores para diagramas y fórmulas */
-    .mermaid-container, .math-container {
-        margin: 1.5em 0;
-        text-align: center;
-        background-color: #fff;
-        border: 1px solid #e1e8ed;
-        border-radius: 6px;
-        padding: 1em;
-    }
-
-    .error-message {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 0.75rem 1.25rem;
-        margin: 1rem 0;
-        border: 1px solid #f5c6cb;
-        border-radius: 0.25rem;
-    }
-
-    /* Estilos específicos para KaTeX */
-    .katex-display {
-        margin: 1em 0;
-        text-align: center;
-    }
-
-    .katex {
-        font-size: 1.1em;
-    }
-    """
+    def __init__(self, script_dir: Path):
+        self.script_dir = script_dir
+        self.css_file = script_dir / "default.css"
+        self.html_file = script_dir / "default.html"
     
-    HTML_TEMPLATE = """<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    <style>{css_content}</style>
+    def load_css(self, custom_css_file: Optional[Path] = None) -> str:
+        """Carga CSS personalizado o el predeterminado."""
+        if custom_css_file and custom_css_file.is_file():
+            try:
+                return custom_css_file.read_text(encoding='utf-8')
+            except Exception as e:
+                raise FileNotFoundError(f"Error al cargar CSS personalizado {custom_css_file}: {e}")
+        
+        if self.css_file.is_file():
+            try:
+                return self.css_file.read_text(encoding='utf-8')
+            except Exception as e:
+                raise FileNotFoundError(f"Error al cargar default.css: {e}")
+        
+        raise FileNotFoundError(f"Archivo default.css no encontrado en {self.script_dir}")
     
-    <!-- KaTeX CSS y JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    def load_html_template(self) -> str:
+        """Carga la plantilla HTML."""
+        if self.html_file.is_file():
+            try:
+                return self.html_file.read_text(encoding='utf-8')
+            except Exception as e:
+                raise FileNotFoundError(f"Error al cargar default.html: {e}")
+        
+        raise FileNotFoundError(f"Archivo default.html no encontrado en {self.script_dir}")
     
-    <!-- Mermaid JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
-</head>
-<body>
-{html_body}
-
-<script>
-// Configuración de Mermaid
-mermaid.initialize({{
-    startOnLoad: false,
-    theme: 'default',
-    securityLevel: 'loose',
-    flowchart: {{
-        useMaxWidth: true,
-        htmlLabels: true
-    }}
-}});
-
-// Configuración de KaTeX
-document.addEventListener('DOMContentLoaded', function() {{
-    // Renderizar fórmulas LaTeX
-    renderMathInElement(document.body, {{
-        delimiters: [
-            {{left: '$$', right: '$$', display: true}},
-            {{left: '$', right: '$', display: false}},
-            {{left: '\\[', right: '\\]', display: true}},
-            {{left: '\\(', right: '\\)', display: false}}
-        ],
-        throwOnError: false,
-        errorColor: '#cc0000',
-        strict: 'warn'
-    }});
-    
-    // Renderizar diagramas Mermaid
-    mermaid.run({{
-        nodes: document.querySelectorAll('.language-mermaid')
-    }});
-}});
-</script>
-</body>
-</html>"""
+    def create_html_document(self, html_body: str, css_content: str, title: str) -> str:
+        """Crea documento HTML completo usando la plantilla."""
+        template = self.load_html_template()
+        return template.format(
+            title=title,
+            css_content=css_content,
+            html_body=html_body
+        )
 
 
 class ImageProcessor:
@@ -355,45 +229,13 @@ class ContentProcessor:
         return markdown.markdown(md_content, extensions=extensions, output_format='html5')
 
 
-class MarkdownToPDFConverter:
-    """Conversor principal de Markdown a PDF."""
+class PDFGenerator:
+    """Generador de PDF usando Playwright."""
     
-    def __init__(self, quiet: bool = False):
-        self.quiet = quiet
-        self.image_processor = ImageProcessor(self._log)
-        self.content_processor = ContentProcessor(self._log)
+    def __init__(self, logger):
+        self.logger = logger
     
-    def _log(self, message: str) -> None:
-        """Logger simple."""
-        if not self.quiet:
-            print(message)
-    
-    def _load_file(self, file_path: Path) -> str:
-        """Carga el contenido de un archivo."""
-        try:
-            return file_path.read_text(encoding='utf-8')
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Archivo no encontrado: '{file_path}'")
-        except UnicodeDecodeError as e:
-            raise UnicodeDecodeError(f"Error de codificación en '{file_path}': {e}")
-    
-    def _get_css_content(self, css_file: Optional[Path]) -> str:
-        """Obtiene CSS personalizado o el predeterminado."""
-        if css_file and css_file.is_file():
-            custom_css = self._load_file(css_file)
-            self._log(f"📄 Usando CSS personalizado: {css_file}")
-            return custom_css
-        return Config.DEFAULT_CSS
-    
-    def _create_html_document(self, html_body: str, css_content: str, title: str) -> str:
-        """Crea documento HTML completo."""
-        return Config.HTML_TEMPLATE.format(
-            title=title,
-            css_content=css_content,
-            html_body=html_body
-        )
-    
-    def _parse_margins(self, margins_str: str) -> dict:
+    def parse_margins(self, margins_str: str) -> dict:
         """Parsea márgenes en formato 'top,right,bottom,left'."""
         try:
             margins = [m.strip() for m in margins_str.split(',')]
@@ -408,6 +250,59 @@ class MarkdownToPDFConverter:
             }
         except (ValueError, IndexError):
             raise ValueError("Formato de márgenes inválido. Use 'top,right,bottom,left' (en mm)")
+    
+    async def generate_pdf(self, html_content: str, output_file: Path, 
+                          page_size: str, margins: str) -> None:
+        """Genera el PDF usando Playwright."""
+        async with async_playwright() as p:
+            browser = await p.chromium.launch()
+            page = await browser.new_page()
+            
+            # Configurar timeout
+            page.set_default_timeout(60000)  # 60 segundos
+            
+            await page.set_content(html_content, wait_until='networkidle')
+            
+            # Esperar renderizado
+            self.logger("⏳ Esperando renderizado de contenido...")
+            await asyncio.sleep(4)  # Tiempo para KaTeX y Mermaid
+            
+            # Generar PDF
+            pdf_options = {
+                'format': page_size,
+                'margin': self.parse_margins(margins),
+                'print_background': True,
+                'path': str(output_file)
+            }
+            
+            await page.pdf(**pdf_options)
+            await browser.close()
+
+
+class MarkdownToPDFConverter:
+    """Conversor principal de Markdown a PDF."""
+    
+    def __init__(self, quiet: bool = False):
+        self.quiet = quiet
+        self.script_dir = Path(__file__).parent
+        self.template_manager = TemplateManager(self.script_dir)
+        self.image_processor = ImageProcessor(self._log)
+        self.content_processor = ContentProcessor(self._log)
+        self.pdf_generator = PDFGenerator(self._log)
+    
+    def _log(self, message: str) -> None:
+        """Logger simple."""
+        if not self.quiet:
+            print(message)
+    
+    def _load_file(self, file_path: Path) -> str:
+        """Carga el contenido de un archivo."""
+        try:
+            return file_path.read_text(encoding='utf-8')
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Archivo no encontrado: '{file_path}'")
+        except UnicodeDecodeError as e:
+            raise UnicodeDecodeError(f"Error de codificación en '{file_path}': {e}")
     
     async def convert(self, input_file: Path, output_file: Optional[Path] = None,
                      css_file: Optional[Path] = None, page_size: str = 'A4',
@@ -428,41 +323,19 @@ class MarkdownToPDFConverter:
         html_body = await self.image_processor.process_images_in_html(html_body, input_file)
         
         # Crear documento HTML final
-        css_content = self._get_css_content(css_file)
-        full_html = self._create_html_document(html_body, css_content, input_file.stem)
+        css_content = self.template_manager.load_css(css_file)
+        if css_file:
+            self._log(f"📄 Usando CSS personalizado: {css_file}")
+        else:
+            self._log(f"📄 Usando CSS por defecto: {self.template_manager.css_file}")
+        
+        full_html = self.template_manager.create_html_document(html_body, css_content, input_file.stem)
         
         # Generar PDF
-        await self._generate_pdf(full_html, output_file, page_size, margins)
+        await self.pdf_generator.generate_pdf(full_html, output_file, page_size, margins)
         
         self._log(f"✅ PDF generado exitosamente: '{output_file}'")
         return output_file
-    
-    async def _generate_pdf(self, html_content: str, output_file: Path, 
-                           page_size: str, margins: str) -> None:
-        """Genera el PDF usando Playwright."""
-        async with async_playwright() as p:
-            browser = await p.chromium.launch()
-            page = await browser.new_page()
-            
-            # Configurar timeout
-            page.set_default_timeout(60000)  # 60 segundos
-            
-            await page.set_content(html_content, wait_until='networkidle')
-            
-            # Esperar renderizado
-            self._log("⏳ Esperando renderizado de contenido...")
-            await asyncio.sleep(4)  # Tiempo para KaTeX y Mermaid
-            
-            # Generar PDF
-            pdf_options = {
-                'format': page_size,
-                'margin': self._parse_margins(margins),
-                'print_background': True,
-                'path': str(output_file)
-            }
-            
-            await page.pdf(**pdf_options)
-            await browser.close()
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -481,6 +354,10 @@ Ejemplos de uso:
 Soporte LaTeX:
   - Inline: $E = mc^2$
   - Block: $$\\int_0^1 x^2 dx = \\frac{1}{3}$$
+
+Archivos requeridos en la misma carpeta:
+  - default.css: Estilos por defecto
+  - default.html: Plantilla HTML base
         """
     )
     
@@ -535,8 +412,9 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main())) 
-       
+    sys.exit(asyncio.run(main()))
+    
+           
 # --- Ejemplos de uso ---
 
 # Conversión básica: genera 'documento.pdf' a partir de 'documento.md'
@@ -566,5 +444,8 @@ if __name__ == "__main__":
 # python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\asignaturas\semestre-9\sistema-distribuido\actividades\saber-1\reportaje-tecnologico\actividad-reportaje.md"
 # python md_to_pdf.py "C:\DevOps\MyGitHub\n8n-learning-journey\docs\deployments\n8n-local-env\README.md"
 # python md_to_pdf.py "C:\DevOps\MyGitHub\n8n-learning-journey\docs\conceptos-basicos\instalacion\self-hosted\render-supabase.md"
+
+# https://github.com/simonhaenisch/md-to-pdf
+# https://github.com/microsoft/markitdown
 
 

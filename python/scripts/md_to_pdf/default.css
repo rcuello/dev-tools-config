@@ -78,17 +78,8 @@ img {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-p {
-    margin: 0.8em 0;
-}
-
-ul, ol {
-    margin: 0.8em 0;
-    padding-left: 1.5em;
-}
-
-/* Estilos para diagramas Mermaid */
-.mermaid-container {
+/* Contenedores para diagramas y fórmulas */
+.mermaid-container, .math-container {
     margin: 1.5em 0;
     text-align: center;
     background-color: #fff;
@@ -97,7 +88,7 @@ ul, ol {
     padding: 1em;
 }
 
-.mermaid-error {
+.error-message {
     background-color: #f8d7da;
     color: #721c24;
     padding: 0.75rem 1.25rem;
@@ -106,16 +97,12 @@ ul, ol {
     border-radius: 0.25rem;
 }
 
-.image-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 0.75rem 1.25rem;
-    margin: 1rem 0;
-    border: 1px solid #f5c6cb;
-    border-radius: 0.25rem;
+/* Estilos específicos para KaTeX */
+.katex-display {
+    margin: 1em 0;
+    text-align: center;
 }
 
-/* Mejoras para imágenes */
-img[src^="data:"] {
-    max-height: 600px;
+.katex {
+    font-size: 1.1em;
 }
