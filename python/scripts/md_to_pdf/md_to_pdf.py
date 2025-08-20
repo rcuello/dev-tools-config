@@ -358,6 +358,8 @@ class MarkdownToPDFConverter:
             custom_css = self._load_file(css_file)
             self._log(f"📄 Usando CSS personalizado: {css_file}")
             return custom_css
+        
+        #return DEFAULT_CSS_FILE.read_text(encoding="utf-8")
         return DEFAULT_CSS
     
     def _create_html_document(self, html_body: str, css_content: str, title: str) -> str:
