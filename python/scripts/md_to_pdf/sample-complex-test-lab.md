@@ -168,4 +168,32 @@ n8n tables:
 ### ⚠️ `warning_message`  
 ### ✅ `success_state` 
 
+---
+
+
+### 1.4 Verificar la creación del proyecto
+
+Una vez completado, verás:
+- ✅ **Database**: Estado "Healthy" 
+- ✅ **API**: URLs generadas automáticamente
+- ✅ **Authentication**: Configurado y listo
+- 📊 **Dashboard**: Con métricas básicas disponibles
+
+---
+
+### 2.2 Crear el servicio web en Render
+
+1. En el dashboard de Render, haz clic en "New +"
+2. Selecciona "Web Service"
+3. En la sección "You are deploying a Web Service", selecciona **"Existing image"**
+4. En el campo de imagen Docker, ingresa: `docker.n8n.io/n8nio/n8n`
+5. Configura el servicio:
+   - **Name**: `n8n-app` (o tu nombre preferido)
+   - **Project**: Haz clic en "Create new project" si quieres organizar mejor tus servicios
+      - **Project name**: `n8n-automation-suite` (o el nombre que prefieras)
+      - **Environment name**: `Production`
+   - **Region**: `Oregon (US West)`
+   - **Instance Type**: `Free 512 MB (RAM)`
+
+   
 

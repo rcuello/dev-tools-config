@@ -565,5 +565,6 @@ if __name__ == "__main__":
 # python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\actividades\rompe-hielos\rompehielos-dos-verdades-una-mentira-tech.md"
 # python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\asignaturas\semestre-9\sistema-distribuido\actividades\saber-1\reportaje-tecnologico\actividad-reportaje.md"
 # python md_to_pdf.py "C:\DevOps\MyGitHub\n8n-learning-journey\docs\deployments\n8n-local-env\README.md"
+# python md_to_pdf.py "C:\DevOps\MyGitHub\n8n-learning-journey\docs\conceptos-basicos\instalacion\self-hosted\render-supabase.md"
 
 
