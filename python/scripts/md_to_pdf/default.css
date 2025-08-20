@@ -1,0 +1,121 @@
+@page {
+    margin: 2cm;
+    size: A4;
+}
+
+body {
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 
+                 'Symbola', 'DejaVu Sans', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    font-size: 12pt;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    font-weight: bold;
+}
+
+h1 {
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 0.2em;
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'DejaVu Sans Mono', monospace;
+    font-size: 0.9em;
+}
+
+pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+blockquote {
+    border-left: 4px solid #3498db;
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    background-color: #f8f9fa;
+    font-style: italic;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 1.5em;
+}
+
+/* Estilos para diagramas Mermaid */
+.mermaid-container {
+    margin: 1.5em 0;
+    text-align: center;
+    background-color: #fff;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    padding: 1em;
+}
+
+.mermaid-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem 1.25rem;
+    margin: 1rem 0;
+    border: 1px solid #f5c6cb;
+    border-radius: 0.25rem;
+}
+
+.image-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem 1.25rem;
+    margin: 1rem 0;
+    border: 1px solid #f5c6cb;
+    border-radius: 0.25rem;
+}
+
+/* Mejoras para imágenes */
+img[src^="data:"] {
+    max-height: 600px;
+}

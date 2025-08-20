@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Markdown to PDF Converter - Solo Playwright (Versión Mejorada)
-==============================================================
+Markdown to PDF Converter con soporte para Mermaid
+===================================================
 
 Script que convierte archivos Markdown (.md) a formato PDF
-usando Playwright con soporte mejorado para imágenes.
+usando Playwright con soporte mejorado para imágenes y diagramas Mermaid.
 
 Uso:
 ----
@@ -18,6 +18,7 @@ Dependencias requeridas:
 ------------------------
 - markdown
 - playwright
+- aiohttp
 - Para instalar navegadores: `playwright install`
 """
 
@@ -28,13 +29,19 @@ import asyncio
 import base64
 import mimetypes
 import re
+import json
 from pathlib import Path
 from typing import Optional, Tuple
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 from playwright.async_api import async_playwright
 import aiohttp
 
-# CSS optimizado para emojis e imágenes
+# TODO: Hacer archivo externo .css y html
+# DEFAULT_CSS_FILE = Path(__file__).with_name("default.css")
+
+# CSS optimizado con soporte para Mermaid
+# Ruta CSS por defecto
+
 DEFAULT_CSS = """
 @page {
     margin: 2cm;
@@ -125,9 +132,23 @@ ul, ol {
     padding-left: 1.5em;
 }
 
-/* Mejoras para imágenes problemáticas */
-img[src^="data:"] {
-    max-height: 600px;
+/* Estilos para diagramas Mermaid */
+.mermaid-container {
+    margin: 1.5em 0;
+    text-align: center;
+    background-color: #fff;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    padding: 1em;
+}
+
+.mermaid-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem 1.25rem;
+    margin: 1rem 0;
+    border: 1px solid #f5c6cb;
+    border-radius: 0.25rem;
 }
 
 .image-error {
@@ -138,11 +159,61 @@ img[src^="data:"] {
     border: 1px solid #f5c6cb;
     border-radius: 0.25rem;
 }
+
+/* Mejoras para imágenes */
+img[src^="data:"] {
+    max-height: 600px;
+}
 """
+
+# HTML template que incluye Mermaid
+HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <style>{css_content}</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+</head>
+<body>
+{html_body}
+
+<script>
+mermaid.initialize({{
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: {{
+        useMaxWidth: true,
+        htmlLabels: true
+    }},
+    sequence: {{
+        diagramMarginX: 50,
+        diagramMarginY: 10,
+        actorMargin: 50,
+        width: 150,
+        height: 65,
+        boxMargin: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35
+    }}
+}});
+
+// Función para renderizar diagramas después de cargar la página
+window.addEventListener('load', function() {{
+    setTimeout(() => {{
+        mermaid.init(undefined, '.language-mermaid');
+    }}, 100);
+}});
+</script>
+</body>
+</html>"""
 
 
 class MarkdownToPDFConverter:
-    """Conversor mejorado de Markdown a PDF usando Playwright con soporte para imágenes."""
+    """Conversor mejorado de Markdown a PDF con soporte para Mermaid."""
     
     def __init__(self, quiet: bool = False):
         self.quiet = quiet
@@ -153,7 +224,7 @@ class MarkdownToPDFConverter:
             print(message)
     
     def _load_file(self, file_path: Path) -> str:
-        """Carga el contenido de un archivo Markdown."""
+        """Carga el contenido de un archivo."""
         try:
             return file_path.read_text(encoding='utf-8')
         except FileNotFoundError:
@@ -203,22 +274,15 @@ class MarkdownToPDFConverter:
             img_src = match.group(1)
             
             if img_src.startswith('data:'):
-                # Ya es una data URL, no cambiar
                 return img_tag
             
-            data_url = ""
-            error_msg = ""
+            data_url, error_msg = "", ""
             
             if self._is_url(img_src):
-                # Imagen remota
                 self._log(f"📥 Descargando imagen remota: {img_src}")
                 data_url, error_msg = await self._get_remote_image_as_base64(img_src)
             else:
-                # Imagen local
-                if not Path(img_src).is_absolute():
-                    img_path = base_path.parent / img_src
-                else:
-                    img_path = Path(img_src)
+                img_path = base_path.parent / img_src if not Path(img_src).is_absolute() else Path(img_src)
                 
                 if img_path.exists():
                     self._log(f"📁 Procesando imagen local: {img_path}")
@@ -229,16 +293,13 @@ class MarkdownToPDFConverter:
             if data_url:
                 return img_tag.replace(f'src="{img_src}"', f'src="{data_url}"').replace(f"src='{img_src}'", f"src='{data_url}'")
             else:
-                # Reemplazar con mensaje de error
                 self._log(f"❌ No se pudo cargar imagen: {img_src} ({error_msg})")
                 return f'<div class="image-error">⚠️ No se pudo cargar la imagen: {img_src}<br>Error: {error_msg}</div>'
         
-        # Procesar todas las imágenes
         matches = list(img_pattern.finditer(html_content))
         if matches:
             self._log(f"🖼️  Procesando {len(matches)} imagen(es)...")
             
-            # Reemplazar de forma asíncrona
             result = html_content
             offset = 0
             for match in matches:
@@ -251,6 +312,38 @@ class MarkdownToPDFConverter:
         
         return html_content
     
+    def _process_mermaid_blocks(self, html_content: str) -> str:
+        """Procesa bloques de código Mermaid y los convierte en divs renderizables."""
+        # Patrón para detectar bloques de código mermaid
+        mermaid_pattern = re.compile(
+            r'<pre><code class="language-mermaid">(.*?)</code></pre>',
+            re.DOTALL | re.IGNORECASE
+        )
+        
+        def replace_mermaid(match):
+            mermaid_code = match.group(1).strip()
+            # Decodificar entidades HTML comunes
+            mermaid_code = (mermaid_code
+                           .replace('&lt;', '<')
+                           .replace('&gt;', '>')
+                           .replace('&amp;', '&')
+                           .replace('&quot;', '"'))
+            
+            self._log(f"🎨 Procesando diagrama Mermaid")
+            
+            return f'''<div class="mermaid-container">
+    <div class="language-mermaid">{mermaid_code}</div>
+</div>'''
+        
+        result = mermaid_pattern.sub(replace_mermaid, html_content)
+        
+        # Contar cuántos diagramas se procesaron
+        mermaid_count = len(mermaid_pattern.findall(html_content))
+        if mermaid_count > 0:
+            self._log(f"📊 Se encontraron {mermaid_count} diagrama(s) Mermaid")
+        
+        return result
+    
     def _markdown_to_html(self, md_content: str, enable_toc: bool = True) -> str:
         """Convierte contenido Markdown a HTML."""
         extensions = ['extra', 'codehilite', 'tables', 'fenced_code']
@@ -262,23 +355,18 @@ class MarkdownToPDFConverter:
     def _get_css_content(self, css_file: Optional[Path]) -> str:
         """Obtiene CSS personalizado o el predeterminado."""
         if css_file and css_file.is_file():
-            return self._load_file(css_file)
+            custom_css = self._load_file(css_file)
+            self._log(f"📄 Usando CSS personalizado: {css_file}")
+            return custom_css
         return DEFAULT_CSS
     
     def _create_html_document(self, html_body: str, css_content: str, title: str) -> str:
-        """Crea documento HTML completo."""
-        return f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    <style>{css_content}</style>
-</head>
-<body>
-{html_body}
-</body>
-</html>"""
+        """Crea documento HTML completo con soporte para Mermaid."""
+        return HTML_TEMPLATE.format(
+            title=title,
+            css_content=css_content,
+            html_body=html_body
+        )
     
     def _parse_margins(self, margins_str: str) -> dict:
         """Parsea márgenes en formato 'top,right,bottom,left'."""
@@ -309,7 +397,10 @@ class MarkdownToPDFConverter:
         md_content = self._load_file(input_file)
         html_body = self._markdown_to_html(md_content, enable_toc=not no_toc)
         
-        # Procesar imágenes antes de crear el HTML final
+        # Procesar diagramas Mermaid
+        html_body = self._process_mermaid_blocks(html_body)
+        
+        # Procesar imágenes
         html_body = await self._process_images_in_html(html_body, input_file)
         
         css_content = self._get_css_content(css_file)
@@ -320,13 +411,18 @@ class MarkdownToPDFConverter:
             browser = await p.chromium.launch()
             page = await browser.new_page()
             
-            # Configurar timeout más largo para imágenes
-            page.set_default_timeout(30000)  # 30 segundos
+            # Configurar timeout más largo para procesar Mermaid
+            page.set_default_timeout(45000)  # 45 segundos
             
             await page.set_content(full_html, wait_until='networkidle')
             
-            # Esperar un poco más para asegurar que las imágenes se carguen
-            await asyncio.sleep(2)
+            # Esperar a que Mermaid renderice los diagramas
+            self._log("⏳ Esperando renderizado de diagramas...")
+            await asyncio.sleep(3)  # Tiempo adicional para Mermaid
+            
+            # Verificar si hay errores de Mermaid en el console
+            page.on("console", lambda msg: 
+                    self._log(f"🔍 Console: {msg.text}") if "mermaid" in msg.text.lower() else None)
             
             pdf_options = {
                 'format': page_size,
@@ -345,8 +441,16 @@ class MarkdownToPDFConverter:
 def create_parser() -> argparse.ArgumentParser:
     """Crea el parser de argumentos."""
     parser = argparse.ArgumentParser(
-        description='Convierte archivos Markdown a PDF usando Playwright',
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description='Convierte archivos Markdown a PDF con soporte para Mermaid',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Ejemplos de uso:
+  python md_to_pdf.py documento.md
+  python md_to_pdf.py documento.md -o informe.pdf
+  python md_to_pdf.py documento.md --css-file estilos.css
+  python md_to_pdf.py documento.md --page-size A5 --margins "10,15,10,15"
+  python md_to_pdf.py documento.md --no-toc --quiet
+        """
     )
     
     parser.add_argument(
@@ -414,8 +518,8 @@ async def main() -> int:
         
         return 0
         
-    except ImportError:
-        print("Error: Dependencias faltantes.", file=sys.stderr)
+    except ImportError as e:
+        print(f"Error: Dependencias faltantes: {e}", file=sys.stderr)
         print("Instale con: pip install playwright aiohttp && playwright install", file=sys.stderr)
         return 1
     except (FileNotFoundError, ValueError, UnicodeDecodeError) as e:
@@ -427,7 +531,9 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))    
+    sys.exit(asyncio.run(main()))
+    
+       
 # --- Ejemplos de uso ---
 
 # Conversión básica: genera 'documento.pdf' a partir de 'documento.md'
