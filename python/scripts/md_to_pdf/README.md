@@ -51,6 +51,8 @@ cd md-to-pdf
 python -m venv .venv
 source .venv/bin/activate  # o en Windows: .\.venv\Scripts\activate
 pip install -r requirements.txt
+pip install -r requirements.txt --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org
+
 playwright install
 ```
 

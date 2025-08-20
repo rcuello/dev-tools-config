@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Markdown to PDF Converter - Solo Playwright
-==========================================
+Markdown to PDF Converter - Solo Playwright (Versión Mejorada)
+==============================================================
 
 Script que convierte archivos Markdown (.md) a formato PDF
-usando Playwright para soporte superior de emojis a color.
+usando Playwright con soporte mejorado para imágenes.
 
 Uso:
 ----
@@ -25,11 +25,16 @@ import sys
 import argparse
 import markdown
 import asyncio
+import base64
+import mimetypes
+import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
+from urllib.parse import urlparse, urljoin
 from playwright.async_api import async_playwright
+import aiohttp
 
-# CSS optimizado para emojis
+# CSS optimizado para emojis e imágenes
 DEFAULT_CSS = """
 @page {
     margin: 2cm;
@@ -106,7 +111,9 @@ img {
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 1em 0;
+    margin: 1em auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 p {
@@ -117,11 +124,25 @@ ul, ol {
     margin: 0.8em 0;
     padding-left: 1.5em;
 }
+
+/* Mejoras para imágenes problemáticas */
+img[src^="data:"] {
+    max-height: 600px;
+}
+
+.image-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem 1.25rem;
+    margin: 1rem 0;
+    border: 1px solid #f5c6cb;
+    border-radius: 0.25rem;
+}
 """
 
 
 class MarkdownToPDFConverter:
-    """Conversor simplificado de Markdown a PDF usando Playwright."""
+    """Conversor mejorado de Markdown a PDF usando Playwright con soporte para imágenes."""
     
     def __init__(self, quiet: bool = False):
         self.quiet = quiet
@@ -139,6 +160,96 @@ class MarkdownToPDFConverter:
             raise FileNotFoundError(f"Archivo no encontrado: '{file_path}'")
         except UnicodeDecodeError as e:
             raise UnicodeDecodeError(f"Error de codificación en '{file_path}': {e}")
+    
+    def _get_image_as_base64(self, image_path: Path) -> Tuple[str, str]:
+        """Convierte una imagen local a base64 data URL."""
+        try:
+            with open(image_path, 'rb') as img_file:
+                img_data = img_file.read()
+                mime_type = mimetypes.guess_type(str(image_path))[0] or 'image/png'
+                base64_data = base64.b64encode(img_data).decode('utf-8')
+                return f"data:{mime_type};base64,{base64_data}", ""
+        except Exception as e:
+            self._log(f"⚠️  Error al procesar imagen {image_path}: {e}")
+            return "", str(e)
+    
+    async def _get_remote_image_as_base64(self, url: str) -> Tuple[str, str]:
+        """Descarga una imagen remota y la convierte a base64 data URL."""
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        img_data = await response.read()
+                        content_type = response.headers.get('content-type', 'image/png')
+                        base64_data = base64.b64encode(img_data).decode('utf-8')
+                        return f"data:{content_type};base64,{base64_data}", ""
+                    else:
+                        return "", f"HTTP {response.status}"
+        except Exception as e:
+            self._log(f"⚠️  Error al descargar imagen {url}: {e}")
+            return "", str(e)
+    
+    def _is_url(self, path: str) -> bool:
+        """Verifica si una ruta es una URL."""
+        parsed = urlparse(path)
+        return parsed.scheme in ('http', 'https')
+    
+    async def _process_images_in_html(self, html_content: str, base_path: Path) -> str:
+        """Procesa todas las imágenes en el HTML y las convierte a base64."""
+        img_pattern = re.compile(r'<img[^>]*src=["\']([^"\']*)["\'][^>]*>', re.IGNORECASE)
+        
+        async def replace_img_src(match):
+            img_tag = match.group(0)
+            img_src = match.group(1)
+            
+            if img_src.startswith('data:'):
+                # Ya es una data URL, no cambiar
+                return img_tag
+            
+            data_url = ""
+            error_msg = ""
+            
+            if self._is_url(img_src):
+                # Imagen remota
+                self._log(f"📥 Descargando imagen remota: {img_src}")
+                data_url, error_msg = await self._get_remote_image_as_base64(img_src)
+            else:
+                # Imagen local
+                if not Path(img_src).is_absolute():
+                    img_path = base_path.parent / img_src
+                else:
+                    img_path = Path(img_src)
+                
+                if img_path.exists():
+                    self._log(f"📁 Procesando imagen local: {img_path}")
+                    data_url, error_msg = self._get_image_as_base64(img_path)
+                else:
+                    error_msg = "Archivo no encontrado"
+            
+            if data_url:
+                return img_tag.replace(f'src="{img_src}"', f'src="{data_url}"').replace(f"src='{img_src}'", f"src='{data_url}'")
+            else:
+                # Reemplazar con mensaje de error
+                self._log(f"❌ No se pudo cargar imagen: {img_src} ({error_msg})")
+                return f'<div class="image-error">⚠️ No se pudo cargar la imagen: {img_src}<br>Error: {error_msg}</div>'
+        
+        # Procesar todas las imágenes
+        matches = list(img_pattern.finditer(html_content))
+        if matches:
+            self._log(f"🖼️  Procesando {len(matches)} imagen(es)...")
+            
+            # Reemplazar de forma asíncrona
+            result = html_content
+            offset = 0
+            for match in matches:
+                start, end = match.span()
+                replacement = await replace_img_src(match)
+                result = result[:start + offset] + replacement + result[end + offset:]
+                offset += len(replacement) - (end - start)
+            
+            return result
+        
+        return html_content
     
     def _markdown_to_html(self, md_content: str, enable_toc: bool = True) -> str:
         """Convierte contenido Markdown a HTML."""
@@ -192,11 +303,15 @@ class MarkdownToPDFConverter:
         if output_file is None:
             output_file = input_file.with_suffix('.pdf')
         
-        self._log(f"Convirtiendo: '{input_file.name}' -> '{output_file.name}'")
+        self._log(f"🔄 Convirtiendo: '{input_file.name}' -> '{output_file.name}'")
         
         # Cargar y procesar contenido
         md_content = self._load_file(input_file)
         html_body = self._markdown_to_html(md_content, enable_toc=not no_toc)
+        
+        # Procesar imágenes antes de crear el HTML final
+        html_body = await self._process_images_in_html(html_body, input_file)
+        
         css_content = self._get_css_content(css_file)
         full_html = self._create_html_document(html_body, css_content, input_file.stem)
         
@@ -205,7 +320,13 @@ class MarkdownToPDFConverter:
             browser = await p.chromium.launch()
             page = await browser.new_page()
             
+            # Configurar timeout más largo para imágenes
+            page.set_default_timeout(30000)  # 30 segundos
+            
             await page.set_content(full_html, wait_until='networkidle')
+            
+            # Esperar un poco más para asegurar que las imágenes se carguen
+            await asyncio.sleep(2)
             
             pdf_options = {
                 'format': page_size,
@@ -217,7 +338,7 @@ class MarkdownToPDFConverter:
             await page.pdf(**pdf_options)
             await browser.close()
         
-        self._log(f"✓ PDF generado exitosamente: '{output_file}'")
+        self._log(f"✅ PDF generado exitosamente: '{output_file}'")
         return output_file
 
 
@@ -294,8 +415,8 @@ async def main() -> int:
         return 0
         
     except ImportError:
-        print("Error: Playwright no está instalado.", file=sys.stderr)
-        print("Instale con: pip install playwright && playwright install", file=sys.stderr)
+        print("Error: Dependencias faltantes.", file=sys.stderr)
+        print("Instale con: pip install playwright aiohttp && playwright install", file=sys.stderr)
         return 1
     except (FileNotFoundError, ValueError, UnicodeDecodeError) as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -306,8 +427,7 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
-    
+    sys.exit(asyncio.run(main()))    
 # --- Ejemplos de uso ---
 
 # Conversión básica: genera 'documento.pdf' a partir de 'documento.md'
