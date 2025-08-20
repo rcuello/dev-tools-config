@@ -330,3 +330,11 @@ if __name__ == "__main__":
 
 # python md_to_pdf.py sample_lab.md
 # python md_to_pdf.py sample_prueba_emoji.md
+# python md_to_pdf.py sample_test.md
+# python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\asignaturas\semestre-2\programacion-1-java\unidad-01-intro\lab-01-terminal-sin-ide\01-intro-terminal-java-sin-ide-lab.md"
+# python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\asignaturas\semestre-2\programacion-1-java\unidad-01-intro\lab-01-terminal-sin-ide\02-intro-terminal-java-sin-ide-informe.md"
+# python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\actividades\rompe-hielos\rompehielos-dos-verdades-una-mentira-tech.md"
+# python md_to_pdf.py "C:\DevOps\MyGitHub\academia-docente\asignaturas\semestre-9\sistema-distribuido\actividades\saber-1\reportaje-tecnologico\actividad-reportaje.md"
+# python md_to_pdf.py "C:\DevOps\MyGitHub\n8n-learning-journey\docs\deployments\n8n-local-env\README.md"
+
+

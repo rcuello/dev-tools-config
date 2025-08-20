@@ -27,6 +27,13 @@ pip install -r requirements.txt
 playwright install
 ````
 
+O con hosts de confianza:
+
+```bash
+pip install -r requirements.txt --trusted-host pypi.org --trusted-host files.pythonhosted.org
+playwright install
+```
+
 Contenido mínimo del `requirements.txt`:
 
 ```txt
