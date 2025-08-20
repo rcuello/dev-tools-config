@@ -90,3 +90,82 @@ Add emojis and icons to your documents with ease: 😊🎉✨
 ### Export Options
 
 Easily export your Markdown documents to **PDF** or **HTML** with a single click.
+---
+
+### more Emojis and List
+
+1. 🗄️
+2. 📊
+3. 🚀
+4. 📝
+5. 📜
+6. 🔄
+7. 📦
+8. 📈
+9. 🔐
+10. 🗝️
+11. 🔒
+12. 🤝
+13. 👥
+14. 👤
+15. 🔑
+16. 🚫
+17. 🛠️
+18. 🌐
+19. 🎣
+20. 📅
+21. 📁
+22. 🏷️
+23. 🔗
+24. ⚙️
+25. 🧩
+26. 🔧
+27. 🧪
+28. 🏃
+29. 🗺️
+30. 👉
+31. ⚠️
+32. ✅
+
+👉 En total hay **32 emojis diferentes** en el documento.
+
+---
+
+### Title Emojis
+
+n8n tables:
+
+### 🗄️ `database_storage`
+### 📊 `metrics_dashboard`  
+### 🚀 `performance_boost`  
+### 📝 `documentation_notes`  
+### 📜 `workflow_history`  
+### 🔄 `sync_process`  
+### 📦 `package_manager`  
+### 📈 `growth_stats`  
+### 🔐 `data_encryption`  
+### 🗝️ `secret_key`  
+### 🔒 `secure_lock`  
+### 🤝 `collaboration_tools`  
+### 👥 `user_groups`  
+### 👤 `single_user`  
+### 🔑 `access_credentials`  
+### 🚫 `restricted_access`  
+### 🛠️ `dev_tools`  
+### 🌐 `global_network`  
+### 🎣 `event_hooks`  
+### 📅 `scheduler`  
+### 📁 `file_storage`  
+### 🏷️ `tagging_system`  
+### 🔗 `api_connections`  
+### ⚙️ `system_config`  
+### 🧩 `plugin_module`  
+### 🔧 `service_connector`  
+### 🧪 `testing_lab`  
+### 🏃 `execution_flow`  
+### 🗺️ `roadmap`  
+### 👉 `pointer_action`  
+### ⚠️ `warning_message`  
+### ✅ `success_state` 
+
+
